@@ -1,0 +1,10 @@
+/home/jefte/dani-seres-do-papel/target/debug/deps/bracket_embedding-d6b8ab0fa28c8dd2.d: /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/lib.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/embedding.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/terminal8x8.png /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/vga8x16.png
+
+/home/jefte/dani-seres-do-papel/target/debug/deps/libbracket_embedding-d6b8ab0fa28c8dd2.rlib: /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/lib.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/embedding.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/terminal8x8.png /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/vga8x16.png
+
+/home/jefte/dani-seres-do-papel/target/debug/deps/libbracket_embedding-d6b8ab0fa28c8dd2.rmeta: /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/lib.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/embedding.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/terminal8x8.png /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/vga8x16.png
+
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/lib.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/embedding.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/terminal8x8.png:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bracket-embedding-0.8.7/src/../resources/vga8x16.png:

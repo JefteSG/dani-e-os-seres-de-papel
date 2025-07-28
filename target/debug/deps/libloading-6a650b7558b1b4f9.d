@@ -1,0 +1,12 @@
+/home/jefte/dani-seres-do-papel/target/debug/deps/libloading-6a650b7558b1b4f9.d: /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/lib.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/changelog.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/mod.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/mod.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/consts.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/util.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/error.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/safe.rs
+
+/home/jefte/dani-seres-do-papel/target/debug/deps/liblibloading-6a650b7558b1b4f9.rmeta: /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/lib.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/changelog.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/mod.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/mod.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/consts.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/util.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/error.rs /home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/safe.rs
+
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/lib.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/changelog.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/mod.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/mod.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/os/unix/consts.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/util.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/error.rs:
+/home/jefte/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libloading-0.7.4/src/safe.rs:
