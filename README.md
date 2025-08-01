@@ -3,7 +3,7 @@
 Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
 
 ## 📦 Tecnologias Utilizadas
-- **Linguagem**: Rust (edição 2021)
+- **Linguagem**: Rust (edição 2024)
 - **Engine**: Macroquad (com suporte a áudio)
 - **Dependências**:
   - `rand` para geração de números aleatórios
