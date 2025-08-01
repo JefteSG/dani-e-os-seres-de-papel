@@ -17,3 +17,4 @@ mycert.pem
 mykey.pem
 mycert.pfx
 save_game.json
+.vscode/settings.json
