@@ -1,4 +1,4 @@
-use crate::deck::{Card, Hand};
+use crate::deck::{Card, Deck, Hand};
 use crate::effects::StatusEffect;
 use crate::entity::Entity;
 use std::collections::HashMap;
@@ -11,18 +11,29 @@ pub struct Enemy {
     pub attack: u32,
     pub defense: u32,
     pub status_effects: HashMap<StatusEffect, u32>,
+    pub image_path: String,
 }
 
 impl Enemy {
-    pub fn new(name: &str, health: u32, max_health: u32, attack: u32, defense: u32) -> Self {
+    pub fn new(
+        name: &str,
+        health: u32,
+        max_health: u32,
+        attack: u32,
+        defense: u32,
+        deck: &mut Deck,
+        image_path: &str,
+    ) -> Self {
+        deck.shuffle();
         Self {
             name: name.to_string(),
-            hand: Hand::new(),
+            hand: Hand::new_from_deck(deck, 5),
             health: health,
             max_health: max_health,
             attack: attack,
             defense: defense,
             status_effects: HashMap::new(),
+            image_path: image_path.to_string(),
         }
     }
 }

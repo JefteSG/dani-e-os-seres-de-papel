@@ -1,8 +1,9 @@
-use crate::deck::{Card, Hand};
+use crate::deck::{Card, Deck, Hand};
 use crate::effects::StatusEffect;
 use crate::entity::Entity;
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub struct Player {
     pub name: String,
     pub hand: Hand,
@@ -14,10 +15,11 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: &str) -> Player {
+    pub fn new(name: &str, deck: &mut Deck) -> Player {
+        deck.shuffle();
         Player {
             name: name.to_string(),
-            hand: Hand::new(),
+            hand: Hand::new_from_deck(deck, 5),
             health: 100,
             max_health: 100,
             attack: 10,
