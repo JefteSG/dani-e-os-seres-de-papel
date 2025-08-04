@@ -82,6 +82,7 @@ name = "dani-seres-do-papel"
 version = "0.1.0"
 dependencies = [
  "macroquad",
+ "once_cell",
  "rand",
  "serde",
  "serde_json",
@@ -309,6 +310,12 @@ checksum = "13e571c3517af9e1729d4c63571a27edd660ade0667973bfc74a67c660c2b651"
 dependencies = [
  "byteorder",
 ]
+
+[[package]]
+name = "once_cell"
+version = "1.21.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "png"

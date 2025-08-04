@@ -7,7 +7,7 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     let screen_height = screen_height();
 
     // Título
-    let title = "🃏 Dani e os Seres de Papel 🐉";
+    let title = "🐉 Dani e os Seres de Papel 🐉";
     let title_size = 40.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
     draw_text_with_emoji(
@@ -20,16 +20,16 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     );
 
     // Instruções
-    let instructions = "Use ↑ e ↓ para navegar ou clique. Pressione Enter para selecionar.";
-    let inst_size = 20.0;
-    let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
-    draw_text(
-        instructions,
-        (screen_width - inst_dims.width) / 2.0,
-        screen_height * 0.3,
-        inst_size,
-        WHITE,
-    );
+    // let instructions = "Use ↑ e ↓ para navegar ou clique. Pressione Enter para selecionar.";
+    // let inst_size = 20.0;
+    // let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
+    // draw_text(
+    //     instructions,
+    //     (screen_width - inst_dims.width) / 2.0,
+    //     screen_height * 0.3,
+    //     inst_size,
+    //     WHITE,
+    // );
 
     // Campo de nome do jogador
     let name_label = "Nome do Jogador:";

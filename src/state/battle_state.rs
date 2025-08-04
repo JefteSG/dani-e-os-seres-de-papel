@@ -28,6 +28,8 @@ pub struct BattleState {
     pub damage_particles: Vec<DamageParticle>,
     pub battle_log: Vec<BattleLogEntry>,
     pub log_scroll_offset: f32,
+    pub slow_motion_timer: f32, // Timer para efeito slow motion
+    pub is_final_blow: bool,     // Se é o golpe final
 }
 
 impl BattleState {
@@ -80,7 +82,7 @@ impl BattleState {
     }
     
     pub fn add_battle_start_log(&mut self, enemy_name: &str) {
-        self.add_log("🔥 BATALHA INICIADA! 🔥".to_string(), RED);
+        self.add_log("BATALHA INICIADA!".to_string(), RED);
         self.add_log(format!("Enfrentando: {}", enemy_name), ORANGE);
         self.add_log("Boa sorte, guerreiro!".to_string(), LIME);
     }

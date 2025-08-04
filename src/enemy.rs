@@ -27,7 +27,7 @@ impl Enemy {
         deck.shuffle();
         Self {
             name: name.to_string(),
-            hand: Hand::new_from_deck(deck, 5),
+            hand: Hand::new_with_enemy_chances(name, 5), // Usar chances específicas por inimigo
             health: health,
             max_health: max_health,
             attack: attack,
@@ -48,7 +48,10 @@ impl Entity for Enemy {
         self.health = self.health.saturating_sub(damage_final);
     }
     fn heal(&mut self, heal: u32) {
-        self.health += heal;
+        self.health = self.health.saturating_add(heal);
+        if self.health > self.max_health {
+            self.health = self.max_health;
+        }
     }
 
     fn attack_up(&mut self, attack: u32) {
@@ -60,7 +63,12 @@ impl Entity for Enemy {
     }
 
     fn status_effect(&mut self, status_effect: StatusEffect, duration: u32) {
-        self.status_effects.insert(status_effect, duration);
+        // Permitir acumulação de status effects
+        if let Some(existing_duration) = self.status_effects.get_mut(&status_effect) {
+            *existing_duration += duration; // Acumular duração
+        } else {
+            self.status_effects.insert(status_effect, duration);
+        }
     }
 
     fn apply_status_effects(&mut self) {
@@ -69,8 +77,12 @@ impl Entity for Enemy {
         for (effect, duration) in self.status_effects.iter_mut() {
             match effect {
                 StatusEffect::Poison => {
-                    println!("{} sofre 5 de dano por envenenamento!", self.name);
-                    self.health = self.health.saturating_sub(5);
+                    println!("{} sofre 8 de dano por envenenamento!", self.name);
+                    self.health = self.health.saturating_sub(8);
+                }
+                StatusEffect::Burn => {
+                    println!("{} sofre 10 de dano por queimadura!", self.name);
+                    self.health = self.health.saturating_sub(10);
                 }
             }
 
@@ -84,5 +96,6 @@ impl Entity for Enemy {
             println!("{:?} em {} terminou.", effect, self.name);
             self.status_effects.remove(&effect);
         }
+        // adicionar exoired effects no log
     }
 }

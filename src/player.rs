@@ -48,11 +48,20 @@ impl Entity for Player {
     }
 
     fn heal(&mut self, heal: u32) {
-        self.health += heal;
+        // só pode curar até a vida máxima
+        self.health = self.health.saturating_add(heal);
+        if self.health > self.max_health {
+            self.health = self.max_health;
+        }
     }
 
     fn status_effect(&mut self, status_effect: StatusEffect, duration: u32) {
-        self.status_effects.insert(status_effect, duration);
+        // Permitir acumulação de status effects
+        if let Some(existing_duration) = self.status_effects.get_mut(&status_effect) {
+            *existing_duration += duration; // Acumular duração
+        } else {
+            self.status_effects.insert(status_effect, duration);
+        }
     }
 
     fn apply_status_effects(&mut self) {
@@ -63,6 +72,11 @@ impl Entity for Player {
                 StatusEffect::Poison => {
                     println!("{} sofre 5 de dano por envenenamento!", self.name);
                     self.health = self.health.saturating_sub(5);
+                }
+                StatusEffect::Burn => {
+                    // queimadura respeita defesa porem da o dobro de dano
+                    let damage_final = 2 * self.attack.saturating_sub(self.defense);
+                    self.health = self.health.saturating_sub(damage_final);
                 }
             }
 

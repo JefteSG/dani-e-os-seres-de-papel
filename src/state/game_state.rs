@@ -14,10 +14,10 @@ use ::rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
+use once_cell::sync::Lazy;
 
 
-
-const PLAYER_TURN_COOLDOWN: f32 = 1.5;
+const PLAYER_TURN_COOLDOWN: f32 = 1.0;
 const ENEMY_TURN_COOLDOWN: f32 = 1.0;
 const ENEMY_SHAKE_DURATION: f32 = 0.3;
 
@@ -74,80 +74,84 @@ pub struct GameState {
     pub player_name: String,              // Nome do jogador
     pub is_editing_name: bool,            // Se está editando o nome
     pub emoji_font: Option<Font>,         // Fonte para emojis
+    pub window_too_small: bool,           // Se a janela está muito pequena
+
 }
+
+pub static ENEMIES: Lazy<Vec<EnemyInfo>> = Lazy::new(|| vec![
+    EnemyInfo {
+        id: 1,
+        name: "Esqueleto Bombado".to_string(),
+        base_health: 80,
+        base_attack: 8,
+        base_defense: 5,
+        health: 80,
+        max_health: 80,
+        attack: 8,
+        defense: 5,
+        level: 1,
+        times_defeated: 0,
+        is_unlocked: true, 
+        is_defeated: false,
+        emoji: Some("💀".to_string()),
+        image: Some("assets/enemies/skeleton.png".to_string()),
+    },
+    EnemyInfo {
+        id: 2,
+        name: "Zumbi Influencer".to_string(),
+        base_health: 140,
+        base_attack: 35,
+        base_defense: 16,
+        health: 140,
+        max_health: 140,
+        attack: 25,
+        defense: 16,
+        level: 1,
+        times_defeated: 0,
+        is_unlocked: false, 
+        is_defeated: false,
+        emoji: Some("🧟".to_string()),
+        image: Some("assets/enemies/zombie.png".to_string()),
+    },
+    EnemyInfo {
+        id: 3,
+        name: "Dragoberto".to_string(),
+        base_health: 220,
+        base_attack: 32,
+        base_defense: 30,
+        health: 220,
+        max_health: 220,
+        attack: 32,
+        defense: 30,
+        level: 3,
+        times_defeated: 0,
+        is_unlocked: false, 
+        is_defeated: false,
+        emoji: Some("🐲".to_string()),
+        image: Some("assets/enemies/dragon.png".to_string()),
+    },
+    EnemyInfo {
+        id: 4,
+        name: "Psicopapão".to_string(),
+        base_health: 520,
+        base_attack: 66,
+        base_defense: 12,
+        health: 520,
+        max_health: 520,
+        attack: 66,
+        defense: 12,
+        level: 1,
+        times_defeated: 0,
+        is_unlocked: false, 
+        is_defeated: false,
+        emoji: Some("👾".to_string()),
+        image: Some("assets/enemies/devourer.png".to_string()),
+    },
+]);
 
 impl GameState {
     pub fn new() -> Self {
-        let enemies = vec![
-            EnemyInfo {
-                id: 1,
-                name: "Esqueleto Bombado".to_string(),
-                base_health: 80,
-                base_attack: 8,
-                base_defense: 5,
-                health: 80,
-                max_health: 80,
-                attack: 8,
-                defense: 5,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: true,  // Primeiro inimigo sempre desbloqueado
-                is_defeated: false,
-                emoji: Some("💀".to_string()),
-                image: Some("assets/enemies/goblin.png".to_string()),
-            },
-            EnemyInfo {
-                id: 2,
-                name: "Zumbi Guerreiro".to_string(),
-                base_health: 140,
-                base_attack: 35,
-                base_defense: 16,
-                health: 120,
-                max_health: 120,
-                attack: 25,
-                defense: 16,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: false, // Precisa derrotar o anterior
-                is_defeated: false,
-                emoji: Some("🧟".to_string()),
-                image: Some("assets/enemies/orc.png".to_string()),
-            },
-            EnemyInfo {
-                id: 3,
-                name: "Dragão Sombrio".to_string(),
-                base_health: 180,
-                base_attack: 18,
-                base_defense: 12,
-                health: 180,
-                max_health: 180,
-                attack: 18,
-                defense: 12,
-                level: 3,
-                times_defeated: 0,
-                is_unlocked: false, // Precisa derrotar o anterior
-                is_defeated: false,
-                emoji: Some("🐲".to_string()),
-                image: Some("assets/enemies/dragon.png".to_string()),
-            },
-            EnemyInfo {
-                id: 4,
-                name: "Alquimista".to_string(),
-                base_health: 180,
-                base_attack: 18,
-                base_defense: 12,
-                health: 180,
-                max_health: 180,
-                attack: 18,
-                defense: 12,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: false, // Precisa derrotar o anterior
-                is_defeated: false,
-                emoji: Some("🧪".to_string()),
-                image: Some("assets/enemies/alchemist.png".to_string()),
-            },
-        ];
+        let enemies = ENEMIES.clone();
 
         let mut game_state = Self {
             app_state: AppState::Menu,
@@ -160,6 +164,8 @@ impl GameState {
             player_name: "Jogador".to_string(), // Nome padrão
             is_editing_name: false,
             emoji_font: None,
+            window_too_small: false,
+
         };
         
         // Carregar progresso salvo
@@ -173,6 +179,20 @@ impl GameState {
     }
 
     pub fn update(&mut self) {
+        // Verificar se a janela está muito pequena e ajustar comportamento
+        let current_width = screen_width();
+        let current_height = screen_height();
+        let min_width = 800.0;
+        let min_height = 600.0;
+        
+        // Atualizar o status da janela
+        self.window_too_small = current_width < min_width || current_height < min_height;
+        
+        // Se a janela estiver muito pequena, bloquear todas as interações
+        if self.window_too_small {
+            return; // Não processar nenhuma interação
+        }
+        
         // Calcule o índice do clique antes do bloco mutável para evitar borrow duplo
         let mut clicked_card_index = None;
         if let AppState::Battle(battle) = &self.app_state {
@@ -318,12 +338,89 @@ impl GameState {
                     self.card_textures.play_background_music();
                     battle.music_started = true;
                 }
+                
+                // Processar scroll do log de batalha (apenas se há muitas mensagens)
+                let max_visible_lines = 8; // Número de linhas visíveis no log
+                if battle.battle_log.len() > max_visible_lines {
+                    if is_key_pressed(KeyCode::Up) || is_key_pressed(KeyCode::W) {
+                        // Scroll para cima
+                        battle.log_scroll_offset = (battle.log_scroll_offset - 1.0).max(0.0);
+                    }
+                    if is_key_pressed(KeyCode::Down) || is_key_pressed(KeyCode::S) {
+                        // Scroll para baixo
+                        let max_scroll = (battle.battle_log.len() - max_visible_lines) as f32;
+                        battle.log_scroll_offset = (battle.log_scroll_offset + 1.0).min(max_scroll);
+                    }
+                    if is_key_pressed(KeyCode::Home) {
+                        // Ir para o topo
+                        battle.log_scroll_offset = 0.0;
+                    }
+                    if is_key_pressed(KeyCode::End) {
+                        // Ir para o final
+                        battle.log_scroll_offset = (battle.battle_log.len() - max_visible_lines) as f32;
+                    }
+                } else {
+                    // Se não há muitas mensagens, manter scroll no final
+                    battle.log_scroll_offset = 0.0;
+                }
                 if battle.turn.turn_over() {
+                    // Empate - acabaram os turnos
+                    battle.current_message = "⏰ TEMPO ESGOTADO! Acabaram os turnos!".to_string();
+                    battle.add_battle_end_log("Empate");
+                    self.winner = Some("Empate".to_string());
+                    self.on_battle_end("Acabaram os turnos jogaveis!");
                     self.app_state = AppState::GameOver;
                     return;
                 }
                 if battle.turn.player_turn() {
-                    if !battle.waiting_for_cooldown {
+                    // Processar slow motion primeiro se ativo
+                    if battle.is_final_blow {
+                        let frame_time = get_frame_time();
+                        battle.slow_motion_timer -= frame_time;
+                        
+                        println!("DEBUG: Slow motion ativo - Timer: {:.2}, Frame time: {:.4}", 
+                                 battle.slow_motion_timer, frame_time);
+                        
+                        // Atualizar partículas mesmo durante slow motion
+                        for particle in &mut battle.damage_particles {
+                            particle.update(frame_time);
+                        }
+                        battle.damage_particles.retain(|p| p.is_alive());
+                        
+                        // Forçar finalização após 1 segundo ou timeout de segurança
+                        if battle.slow_motion_timer <= 0.0 || battle.slow_motion_timer > 2.0 {
+                            println!("DEBUG: Finalizando slow motion - Timer: {:.2}", battle.slow_motion_timer);
+                            battle.slow_motion_timer = 0.0;
+                            println!("DEBUG: Resetando is_final_blow = false");
+                            battle.is_final_blow = false;
+                            
+                            // Determinar vencedor baseado na saúde
+                            if battle.enemy.health <= 0 {
+                                println!("DEBUG: Jogador venceu!");
+                                battle.add_battle_end_log("Jogador");
+                                self.winner = Some("Jogador".to_string());
+                                self.on_battle_end("Jogador");
+                                self.app_state = AppState::GameOver;
+                                return;
+                            } else {
+                                println!("DEBUG: Inimigo venceu!");
+                                battle.add_battle_end_log("Inimigo");
+                                self.winner = Some("Inimigo".to_string());
+                                self.on_battle_end("Inimigo");
+                                self.app_state = AppState::GameOver;
+                                return;
+                            }
+                        }
+                        // Não processar nenhuma interação durante slow motion
+                        return;
+                    }
+                    
+                    // Verificar se o jogador não tem cartas e o deck está vazio
+                    if battle.player.hand.cards.is_empty() && battle.deck.cards.is_empty() {
+                        battle.current_message = "🃏 Sem cartas! Passando turno...".to_string();
+                        battle.turn_cooldown = PLAYER_TURN_COOLDOWN;
+                        battle.waiting_for_cooldown = true;
+                    } else if !battle.waiting_for_cooldown {
                         let mut card_played = None;
                         for i in 0..battle.player.hand.cards.len().min(5) {
                             let key = match i {
@@ -358,10 +455,17 @@ impl GameState {
                             battle.add_card_log("Jogador", &card.name);
                             
                             match card.card_type {
-                                CardType::Attack(damage) => {
+                                CardType::Attack_basic(damage) => {
                                     battle.player.attack_up(damage);
                                     battle.current_message = format!(
                                         "Você usou {} e aumentou o ataque em {}!",
+                                        card.name, damage
+                                    );
+                                }
+                                CardType::Attack_strong(damage) => {
+                                    battle.player.attack_up(damage);
+                                    battle.current_message =
+                                        format!("Você usou {} e aumentou o ataque em {}!",
                                         card.name, damage
                                     );
                                 }
@@ -373,14 +477,24 @@ impl GameState {
                                     );
                                 }
                                 CardType::Poison(_) => {
-                                    battle.enemy.status_effect(StatusEffect::Poison, 2);
+                                    battle.enemy.status_effect(StatusEffect::Poison, 4); // Aumentado para 3 turnos
                                     battle.current_message =
                                         format!("Você usou {} e envenenou o inimigo!", card.name);
                                 }
-                                CardType::Heal(heal) => {
-                                    battle.player.heal(heal);
+                                CardType::Heal(heal_percent) => {
+                                    // Calcular baseado no percentual passado
+                                    let heal_amount = (battle.player.max_health as f32 * heal_percent) as u32;
+                                    battle.player.heal(heal_amount);
                                     battle.current_message =
-                                        format!("Você usou {} e se curou em {}!", card.name, heal);
+                                        format!("Você usou {} e se curou em {}!", card.name, heal_amount);
+                                    // adicionar log informando que recebeu tanto de cura
+                                    battle.add_heal_log("Jogador", heal_amount);
+                                        
+                                }
+                                CardType::Burn(_) => {
+                                    battle.enemy.status_effect(StatusEffect::Burn, 3);
+                                    battle.current_message =
+                                        format!("Você usou {} e queimou! 🔥", card.name);
                                 }
                             }
                             if !battle.deck.cards.is_empty() {
@@ -396,7 +510,14 @@ impl GameState {
                             battle.add_damage_log("Jogador", &enemy_name, damage_dealt, actual_damage);
                             
                             battle.enemy.apply_status_effects();
-                            if battle.enemy.health > 0 {
+                            
+                            // Verificar se é o golpe final
+                            if battle.enemy.health <= 0 {
+                                battle.is_final_blow = true;
+                                battle.slow_motion_timer = 1.0; // 1 segundo de slow motion
+                                battle.current_message = "💀 GOLPE FINAL! 💀".to_string();
+                                battle.waiting_for_cooldown = true; // Importante: definir como true para ativar a lógica do slow motion
+                            } else {
                                 battle.enemy_shake_timer = ENEMY_SHAKE_DURATION;
                                 let enemy_x = screen_width() / 2.0;
                                 let enemy_y = screen_height() / 2.0 - 50.0;
@@ -405,15 +526,8 @@ impl GameState {
                                     enemy_y,
                                     damage_dealt,
                                 ));
-                            }
-                            battle.turn_cooldown = PLAYER_TURN_COOLDOWN;
-                            battle.waiting_for_cooldown = true;
-                            if battle.enemy.health <= 0 {
-                                battle.add_battle_end_log("Jogador");
-                                self.winner = Some("Jogador".to_string());
-                                self.on_battle_end("Jogador");
-                                self.app_state = AppState::GameOver;
-                                return;
+                                battle.turn_cooldown = PLAYER_TURN_COOLDOWN;
+                                battle.waiting_for_cooldown = true;
                             }
                         }
                     } else {
@@ -436,11 +550,71 @@ impl GameState {
                         }
                     }
                 } else {
+                    // Processar slow motion primeiro se ativo
+                    if battle.is_final_blow {
+                        let frame_time = get_frame_time();
+                        battle.slow_motion_timer -= frame_time;
+                        
+                        println!("DEBUG: Slow motion ativo - Timer: {:.2}, Frame time: {:.4}", 
+                                 battle.slow_motion_timer, frame_time);
+                        
+                        // Atualizar partículas mesmo durante slow motion
+                        for particle in &mut battle.damage_particles {
+                            particle.update(frame_time);
+                        }
+                        battle.damage_particles.retain(|p| p.is_alive());
+                        
+                        // Forçar finalização após 1 segundo ou timeout de segurança
+                        if battle.slow_motion_timer <= 0.0 || battle.slow_motion_timer > 2.0 {
+                            println!("DEBUG: Finalizando slow motion - Timer: {:.2}", battle.slow_motion_timer);
+                            battle.slow_motion_timer = 0.0;
+                            println!("DEBUG: Resetando is_final_blow = false");
+                            battle.is_final_blow = false;
+                            
+                            // Determinar vencedor baseado na saúde
+                            if battle.enemy.health <= 0 {
+                                println!("DEBUG: Jogador venceu!");
+                                battle.add_battle_end_log("Jogador");
+                                self.winner = Some("Jogador".to_string());
+                                self.on_battle_end("Jogador");
+                                self.app_state = AppState::GameOver;
+                                return;
+                            } else {
+                                println!("DEBUG: Inimigo venceu!");
+                                battle.add_battle_end_log("Inimigo");
+                                self.winner = Some("Inimigo".to_string());
+                                self.on_battle_end("Inimigo");
+                                self.app_state = AppState::GameOver;
+                                return;
+                            }
+                        }
+                        // Não processar nenhuma interação durante slow motion
+                        return;
+                    }
+                    
                     if !battle.waiting_for_cooldown {
                         if let Some(card) = battle.deck.cards.choose(&mut thread_rng()).cloned() {
-                            self.card_textures.play_enemy_attack_sound();
+                            // Tocar som específico do inimigo baseado no nome
+                            let enemy_name = battle.enemy.name.to_lowercase();
+                            let sound_key = if enemy_name.contains("esqueleto") || enemy_name.contains("skeleton") {
+                                "skeleton"
+                            } else if enemy_name.contains("zumbi") || enemy_name.contains("zombie") {
+                                "zombie"
+                            } else if enemy_name.contains("drag") || enemy_name.contains("dragon") {
+                                "dragon"
+                            } else if enemy_name.contains("devourer") || enemy_name.contains("psicopapão") {
+                                "devourer"
+                            } else {
+                                "skeleton" // Fallback
+                            };
+                            self.card_textures.play_enemy_sound(sound_key);
                             match card.card_type {
-                                CardType::Attack(attack) => {
+                                CardType::Attack_basic(attack) => {
+                                    battle.enemy.attack_up(attack);
+                                    battle.current_message =
+                                        format!("Inimigo aumentou ataque em {}!", attack);
+                                }
+                                CardType::Attack_strong(attack) => {
                                     battle.enemy.attack_up(attack);
                                     battle.current_message =
                                         format!("Inimigo aumentou ataque em {}!", attack);
@@ -451,12 +625,19 @@ impl GameState {
                                         format!("Inimigo aumentou defesa em {}!", defense);
                                 }
                                 CardType::Poison(_) => {
-                                    battle.player.status_effect(StatusEffect::Poison, 2);
+                                    battle.player.status_effect(StatusEffect::Poison, 4); // Aumentado para 3 turnos
                                     battle.current_message = "Inimigo aplicou veneno!".to_string();
                                 }
-                                CardType::Heal(heal) => {
-                                    battle.enemy.heal(heal);
-                                    battle.current_message = format!("Inimigo curou {}!", heal);
+                                CardType::Heal(heal_percent) => {
+                                    // Calcular baseado no percentual passado
+                                    let heal_amount = (battle.enemy.max_health as f32 * heal_percent) as u32;
+                                    battle.enemy.heal(heal_amount);
+                                    battle.current_message = format!("Inimigo curou {}!", heal_amount);
+                                }
+                                CardType::Burn(_) => {
+                                    battle.player.status_effect(StatusEffect::Burn, 3);
+                                    battle.current_message =
+                                        format!("Inimigo queimou! 🔥");
                                 }
                             }
                             let damage_dealt = battle.enemy.attack;
@@ -469,29 +650,33 @@ impl GameState {
                             battle.add_damage_log(&enemy_name, "Jogador", damage_dealt, actual_damage);
                             
                             battle.player.apply_status_effects();
-                            let player_x = screen_width() / 2.0;
-                            let player_y = screen_height() * 0.8;
-                            battle.damage_particles.push(DamageParticle::new(
-                                player_x,
-                                player_y,
-                                damage_dealt,
-                            ));
-                            battle.turn_cooldown = ENEMY_TURN_COOLDOWN;
-                            battle.waiting_for_cooldown = true;
+                            
+                            // Verificar se é o golpe final
                             if battle.player.health <= 0 {
-                                battle.add_battle_end_log("Inimigo");
-                                self.winner = Some("Inimigo".to_string());
-                                self.on_battle_end("Inimigo");
-                                self.app_state = AppState::GameOver;
-                                return;
+                                battle.is_final_blow = true;
+                                battle.slow_motion_timer = 1.0; // 1 segundo de slow motion
+                                battle.current_message = "💀 GOLPE FINAL! 💀".to_string();
+                                battle.waiting_for_cooldown = true; // Importante: definir como true para ativar a lógica do slow motion
+                            } else {
+                                let player_x = screen_width() / 2.0;
+                                let player_y = screen_height() * 0.8;
+                                battle.damage_particles.push(DamageParticle::new(
+                                    player_x,
+                                    player_y,
+                                    damage_dealt,
+                                ));
+                                battle.turn_cooldown = ENEMY_TURN_COOLDOWN;
+                                battle.waiting_for_cooldown = true;
                             }
                         } else {
                             battle.current_message =
-                                "Deck inimigo vazio. Turno pulado.".to_string();
+                                "🃏 Deck do inimigo vazio! Turno pulado.".to_string();
                             battle.turn_cooldown = ENEMY_TURN_COOLDOWN;
                             battle.waiting_for_cooldown = true;
                         }
                     } else {
+
+                        // Processar cooldowns e animações normais
                         battle.turn_cooldown -= get_frame_time();
                         battle.enemy_shake_timer =
                             (battle.enemy_shake_timer - get_frame_time()).max(0.0);
@@ -511,11 +696,12 @@ impl GameState {
                     }
                 }
             }
+
             AppState::GameOver => {
-                if is_key_pressed(KeyCode::Escape) {
-                    self.app_state = AppState::EnemySelection;
-                    self.winner = None;
-                }
+                                    if is_key_pressed(KeyCode::Escape) {
+                        self.app_state = AppState::EnemySelection;
+                        self.winner = None;
+                    }
                 if is_mouse_button_pressed(MouseButton::Left) {
                     let (mouse_x, mouse_y) = mouse_position();
                     let screen_width = screen_width();
@@ -542,7 +728,14 @@ impl GameState {
     }
 
     pub fn draw(&self) {
-        clear_background(BLACK);
+        // Desenhar background primeiro
+        self.card_textures.draw_background();
+        
+        // Se a janela estiver muito pequena, mostrar aviso
+        if self.window_too_small {
+            self.draw_window_size_warning();
+        }
+        
         match &self.app_state {
             AppState::Menu => {
                 crate::state::ui::menu::draw_menu(&self.selection, &self.player_name, self.is_editing_name, self.emoji_font.as_ref());
@@ -553,10 +746,64 @@ impl GameState {
             AppState::Battle(battle) => {
                 crate::state::ui::battle::draw_battle(battle, &self.card_textures, self.emoji_font.as_ref(), &self.enemies[self.selected_enemy_index].image.as_ref().unwrap());
             }
+
             AppState::GameOver => {
                 crate::state::ui::game_over::draw_game_over(&self.winner);
             }
         }
+    }
+
+
+
+    /// Desenha um aviso quando a janela está muito pequena
+    fn draw_window_size_warning(&self) {
+        let screen_width = screen_width();
+        let screen_height = screen_height();
+        
+        // Fundo semi-transparente para o aviso
+        draw_rectangle(0.0, 0.0, screen_width, screen_height, Color::new(0.0, 0.0, 0.0, 0.8));
+        
+        // Texto do aviso
+        let warning_text = "🚫 JANELA BLOQUEADA 🚫";
+        let subtitle_text = "Redimensione a janela para pelo menos 800x600";
+        let instruction_text = "Use as bordas da janela para redimensionar";
+        let block_text = "JOGO BLOQUEADO - Redimensione para continuar";
+        
+        let warning_size = 24.0;
+        let subtitle_size = 18.0;
+        let instruction_size = 16.0;
+        let block_size = 20.0;
+        
+        // Centralizar textos
+        let warning_dims = measure_text(warning_text, None, warning_size as u16, 1.0);
+        let subtitle_dims = measure_text(subtitle_text, None, subtitle_size as u16, 1.0);
+        let instruction_dims = measure_text(instruction_text, None, instruction_size as u16, 1.0);
+        let block_dims = measure_text(block_text, None, block_size as u16, 1.0);
+        
+        let warning_x = (screen_width - warning_dims.width) / 2.0;
+        let subtitle_x = (screen_width - subtitle_dims.width) / 2.0;
+        let instruction_x = (screen_width - instruction_dims.width) / 2.0;
+        let block_x = (screen_width - block_dims.width) / 2.0;
+        
+        let center_y = screen_height / 2.0;
+        
+        // Desenhar textos
+        draw_text(warning_text, warning_x, center_y - 60.0, warning_size, RED);
+        draw_text(block_text, block_x, center_y - 20.0, block_size, ORANGE);
+        draw_text(subtitle_text, subtitle_x, center_y + 20.0, subtitle_size, YELLOW);
+        draw_text(instruction_text, instruction_x, center_y + 50.0, instruction_size, WHITE);
+        
+        // Mostrar tamanho atual da janela
+        let size_text = format!("Tamanho atual: {}x{}", screen_width as i32, screen_height as i32);
+        let size_dims = measure_text(&size_text, None, instruction_size as u16, 1.0);
+        let size_x = (screen_width - size_dims.width) / 2.0;
+        draw_text(&size_text, size_x, center_y + 80.0, instruction_size, LIGHTGRAY);
+        
+        // Mostrar tamanho mínimo necessário
+        let min_text = "Tamanho mínimo: 800x600";
+        let min_dims = measure_text(&min_text, None, instruction_size as u16, 1.0);
+        let min_x = (screen_width - min_dims.width) / 2.0;
+        draw_text(&min_text, min_x, center_y + 110.0, instruction_size, LIGHTGRAY);
     }
 
     fn execute_menu_selection(&mut self) {
@@ -624,7 +871,7 @@ impl GameState {
             player,
             enemy,
             deck,
-            turn: GameTurn::new(20),
+            turn: GameTurn::new(50),
             current_message: "A batalha começou!".to_string(),
             music_started: false,
             turn_cooldown: 0.0,
@@ -635,6 +882,8 @@ impl GameState {
             damage_particles: Vec::new(),
             battle_log: Vec::new(),
             log_scroll_offset: 0.0,
+            slow_motion_timer: 0.0,
+            is_final_blow: false,
         };
         
         // Adicionar log inicial da batalha
@@ -649,29 +898,21 @@ impl GameState {
 
     pub fn on_battle_end(&mut self, winner: &str) {
         if winner == "Jogador" {
-            // Marcar inimigo atual como derrotado e aumentar contador
+
             let enemy = &mut self.enemies[self.selected_enemy_index];
             enemy.is_defeated = true;
             enemy.times_defeated += 1;
             
-            // Escalar o inimigo (ficar mais forte)
-            self.scale_enemy(self.selected_enemy_index);
-            
-            // Desbloquear próximo inimigo se existir
+            self.scale_enemy(self.selected_enemy_index);            
             if self.selected_enemy_index + 1 < self.enemies.len() {
                 self.enemies[self.selected_enemy_index + 1].is_unlocked = true;
             }
             
-            // Salvar estado do jogador para próximas batalhas
             if let AppState::Battle(battle) = &self.app_state {
                 self.persistent_player = Some(battle.player.clone());
             }
-        } else {
-            // Se perdeu, resetar jogador persistente
-            self.persistent_player = None;
-        }
+        } 
         
-        // Salvar progresso automaticamente
         self.save_progress();
     }
 
@@ -733,13 +974,25 @@ impl GameState {
             if let Ok(json) = fs::read_to_string(Self::SAVE_FILE) {
                 if let Ok(save_data) = serde_json::from_str::<SaveData>(&json) {
                     self.enemies = save_data.enemies;
+                    for (index, enemy) in self.enemies.iter_mut().enumerate() {
+                        if enemy.image.as_ref().unwrap() != ENEMIES[index].image.as_ref().unwrap() {
+                            enemy.image = ENEMIES[index].image.clone();
+                            enemy.emoji = ENEMIES[index].emoji.clone();
+                            enemy.name = ENEMIES[index].name.clone();
+                            enemy.base_health = ENEMIES[index].base_health;
+                            enemy.base_attack = ENEMIES[index].base_attack;
+                            enemy.base_defense = ENEMIES[index].base_defense;
+                            enemy.health = ENEMIES[index].health;
+                            enemy.max_health = ENEMIES[index].max_health;
+                        }
+                    }
                     self.player_name = save_data.player_name;
                     
                     // Converter PlayerSaveData de volta para Player
                     if let Some(player_data) = save_data.persistent_player {
                         let mut deck = Deck::new();
                         let mut player = Player::new(&player_data.name, &mut deck);
-                        player.health = player_data.health;
+                        player.health = player_data.max_health;
                         player.max_health = player_data.max_health;
                         player.attack = player_data.attack;
                         player.defense = player_data.defense;
@@ -756,76 +1009,7 @@ impl GameState {
 
     pub fn reset_progress(&mut self) {
         // Resetar inimigos para estado inicial
-        self.enemies = vec![
-            EnemyInfo {
-                id: 1,
-                name: "Esqueleto Bombado".to_string(),
-                base_health: 80,
-                base_attack: 8,
-                base_defense: 5,
-                health: 80,
-                max_health: 80,
-                attack: 8,
-                defense: 5,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: true,
-                is_defeated: false,
-                emoji: Some("💀".to_string()),
-                image: Some("assets/enemies/goblin.png".to_string()),
-            },
-            EnemyInfo {
-                id: 2,
-                name: "Zumbi Guerreiro".to_string(),
-                base_health: 120,
-                base_attack:25,
-                base_defense: 16,
-                health: 120,
-                max_health: 120,
-                attack: 25,
-                defense: 16,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: false,
-                is_defeated: false,
-                emoji: Some("🧟".to_string()),
-                image: Some("assets/enemies/orc.png".to_string()),
-            },
-            EnemyInfo {
-                id: 3,
-                name: "Dragão Sombrio".to_string(),
-                base_health: 180,
-                base_attack: 18,
-                base_defense: 12,
-                health: 180,
-                max_health: 180,
-                attack: 18,
-                defense: 12,
-                level: 3,
-                times_defeated: 0,
-                is_unlocked: false,
-                is_defeated: false,
-                emoji: Some("🐲".to_string()),
-                image: Some("assets/enemies/dragon.png".to_string()),
-            },
-            EnemyInfo {
-                id: 4,
-                name: "Alquimista".to_string(),
-                base_health: 180,
-                base_attack: 18,
-                base_defense: 12,
-                health: 180,
-                max_health: 180,
-                attack: 18,
-                defense: 12,
-                level: 1,
-                times_defeated: 0,
-                is_unlocked: false,
-                is_defeated: false,
-                emoji: Some("🧪".to_string()),
-                image: Some("assets/enemies/alchemist.png".to_string()),
-            },
-        ];
+        self.enemies = ENEMIES.clone();
         
         // Resetar jogador persistente
         self.persistent_player = None;

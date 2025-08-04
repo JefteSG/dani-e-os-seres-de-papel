@@ -45,8 +45,10 @@ pub fn draw_game_over(winner: &Option<String>) {
     if let Some(ref winner) = winner {
         let (result_text, result_color) = if winner == "Jogador" {
             ("VITORIA!", GREEN)
-        } else {
+        } else if winner == "Inimigo" {
             ("DERROTA!", RED)
+        } else {
+            ("EMPATE!", WHITE)
         };
 
         let result_size = 28.0;
@@ -62,8 +64,10 @@ pub fn draw_game_over(winner: &Option<String>) {
         // Detalhes do vencedor
         let winner_detail = if winner == "Jogador" {
             "Parabens! Voce derrotou o inimigo!"
-        } else {
+        } else if winner == "Inimigo" {
             "O inimigo foi mais forte desta vez..."
+        } else {
+            "Acabaram os turnos jogaveis!"
         };
 
         let detail_size = 18.0;

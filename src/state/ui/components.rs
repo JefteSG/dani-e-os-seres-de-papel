@@ -133,8 +133,8 @@ pub fn draw_player_hand_with_animation(hand: &Hand, battle: &BattleState, card_t
 }
 
 pub fn draw_enemy_with_animation(battle: &BattleState, card_textures: &CardTextureManager, enemy_image: &str) {
-    let enemy_width = 150.0;
-    let enemy_height = 200.0;
+    let enemy_width = 225.0; 
+    let enemy_height = 300.0; 
     let screen_width = screen_width();
     let screen_height = screen_height();
     let mut x = (screen_width - enemy_width) / 2.0;
@@ -190,15 +190,29 @@ pub fn draw_enemy_info(battle: &BattleState, margin: f32, font_size: f32, emoji_
         font_size - 2.0,
         LIGHTGRAY,
     );
-    if battle.enemy.status_effects.contains_key(&StatusEffect::Poison) {
-        let pulse = (get_time() * 3.0).sin() * 0.3 + 0.7;
+    // Status effects do inimigo com duração
+    if let Some(poison_duration) = battle.enemy.status_effects.get(&StatusEffect::Poison) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
-        draw_text(
-            "☠️ ENVENENADO",
+        draw_text_with_emoji(
+            &format!("☠️ ENVENENADO ({})", poison_duration),
             margin + 150.0,
             margin + line_height + 35.0,
             font_size - 2.0,
             poison_color,
+            emoji_font,
+        );
+    }
+    if let Some(burn_duration) = battle.enemy.status_effects.get(&StatusEffect::Burn) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
+        draw_text_with_emoji(
+            &format!("🔥 QUEIMADO ({})", burn_duration),
+            margin + 150.0,
+            margin + line_height + 50.0,
+            font_size - 2.0,
+            burn_color,
+            emoji_font,
         );
     }
 }
@@ -225,15 +239,29 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
         font_size - 2.0,
         LIGHTGRAY,
     );
-    if battle.player.status_effects.contains_key(&StatusEffect::Poison) {
-        let pulse = (get_time() * 3.0).sin() * 0.3 + 0.7;
+    // Status effects do jogador com duração
+    if let Some(poison_duration) = battle.player.status_effects.get(&StatusEffect::Poison) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
-        draw_text(
-            "☠️ ENVENENADO",
+        draw_text_with_emoji(
+            &format!("☠️ ENVENENADO ({})", poison_duration),
             margin + 150.0,
             info_y + 35.0,
             font_size - 2.0,
             poison_color,
+            emoji_font,
+        );
+    }
+    if let Some(burn_duration) = battle.player.status_effects.get(&StatusEffect::Burn) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
+        draw_text_with_emoji(
+            &format!("🔥 QUEIMADO ({})", burn_duration),
+            margin + 150.0,
+            info_y + 50.0,
+            font_size - 2.0,
+            burn_color,
+            emoji_font,
         );
     }
 }
@@ -269,16 +297,29 @@ pub fn draw_player_info_above_cards(battle: &BattleState, font_size: f32, emoji_
         LIGHTGRAY,
     );
     
-    // Status effects do jogador
-    if battle.player.status_effects.contains_key(&StatusEffect::Poison) {
-        let pulse = (get_time() * 3.0).sin() * 0.3 + 0.7;
+    // Status effects do jogador com duração
+    if let Some(poison_duration) = battle.player.status_effects.get(&StatusEffect::Poison) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
-        draw_text(
-            "☠️ ENVENENADO",
+        draw_text_with_emoji(
+            &format!("☠️ ENVENENADO ({})", poison_duration),
             margin + 150.0,
             info_y + 35.0,
             font_size - 2.0,
             poison_color,
+            emoji_font,
+        );
+    }
+    if let Some(burn_duration) = battle.player.status_effects.get(&StatusEffect::Burn) {
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
+        draw_text_with_emoji(
+            &format!("🔥 QUEIMADO ({})", burn_duration),
+            margin + 150.0,
+            info_y + 50.0,
+            font_size - 2.0,
+            burn_color,
+            emoji_font,
         );
     }
 }
@@ -415,13 +456,13 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
     
     // Instruções de scroll (se necessário)
     if battle.battle_log.len() > max_visible_lines {
-        let scroll_text = "↑↓ Scroll";
-        let scroll_size = 12.0;
+        let scroll_text = "WASD Scroll | Home/End";
+        let scroll_size = 10.0;
         let scroll_dims = measure_text(scroll_text, None, scroll_size as u16, 1.0);
         draw_text(
             scroll_text,
-            log_x + log_width - scroll_dims.width - 25.0,
-            log_y + log_height - 8.0,
+            log_x + 10.0,
+            log_y + log_height - 15.0,
             scroll_size,
             Color::new(0.7, 0.7, 0.7, 1.0),
         );
