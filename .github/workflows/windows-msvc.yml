@@ -40,6 +40,8 @@ jobs:
         mkdir -p dist/windows-msvc
         cp target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe dist/windows-msvc/
         cp -r assets dist/windows-msvc/
+        cd dist/windows-msvc
+        7z a -tzip dani-seres-do-papel-windows.zip dani_seres_do_papel.exe assets/
 
     - name: Upload Windows MSVC artifact
       uses: actions/upload-artifact@v4
@@ -83,6 +85,8 @@ jobs:
         mkdir -p dist/linux
         cp target/x86_64-unknown-linux-gnu/release/dani_seres_do_papel dist/linux/
         cp -r assets dist/linux/
+        cd dist/linux
+        tar -czf dani-seres-do-papel-linux.tar.gz dani_seres_do_papel assets/
 
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
@@ -115,8 +119,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          artifacts/dani-seres-do-papel-windows-msvc/dani_seres_do_papel.exe
-          artifacts/dani-seres-do-papel-linux/dani_seres_do_papel
+          artifacts/dani-seres-do-papel-windows-msvc/dani-seres-do-papel-windows.zip
+          artifacts/dani-seres-do-papel-linux/dani-seres-do-papel-linux.tar.gz
         draft: false
         prerelease: false
       env:
