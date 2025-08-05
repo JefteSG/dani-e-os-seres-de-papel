@@ -35,12 +35,39 @@ O projeto inclui:
 - **Fontes de emoji** para elementos visuais
 
 ## 🚀 Como Executar
+
+### Linux/macOS
 1. Certifique-se de ter o Rust instalado
 2. Clone este repositório
 3. Execute:
    ```bash
    cargo run --release
    ```
+
+### Windows
+Para compilar para Windows a partir do Linux/macOS:
+
+1. **Instale o Cross** (ferramenta de compilação cruzada):
+   ```bash
+   cargo install cross
+   ```
+
+2. **Certifique-se de que o Docker está rodando**
+
+3. **Compile para Windows**:
+   ```bash
+   # Usando o script automático (recomendado)
+   ./build-windows.sh
+   
+   # Ou manualmente
+   cross build --target x86_64-pc-windows-gnu --release
+   ```
+
+4. **O executável será criado em**: `target/x86_64-pc-windows-gnu/release/dani_seres_do_papel.exe`
+
+**Nota**: O target MSVC não é suportado pelo Cross e requer Visual Studio. Recomendamos usar o target GNU que é mais estável e compatível.
+
+📖 **Documentação completa**: Veja [BUILD_WINDOWS.md](BUILD_WINDOWS.md) para instruções detalhadas.
 
 ## 📂 Estrutura do Projeto
 ```

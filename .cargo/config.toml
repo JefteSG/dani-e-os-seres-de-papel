@@ -1,0 +1,28 @@
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+ar = "x86_64-w64-mingw32-gcc-ar"
+
+[target.x86_64-pc-windows-msvc]
+# Para MSVC, usar o linker padrão do Visual Studio
+# Não precisa especificar linker manualmente
+
+[build]
+# Otimizações para release
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+overflow-checks = false
+
+# Configurações específicas para Windows
+[target.'cfg(windows)']
+rustflags = [
+    "-C", "target-feature=+crt-static",
+    "-C", "link-arg=-Wl,--strip-all",
+]
+
+# Configurações para otimização de tamanho
+[profile.release.package."*"]
+opt-level = 3 
