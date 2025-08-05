@@ -116,9 +116,7 @@ jobs:
       with:
         files: |
           artifacts/dani-seres-do-papel-windows-msvc/dani_seres_do_papel.exe
-          artifacts/dani-seres-do-papel-windows-msvc/assets/**
           artifacts/dani-seres-do-papel-linux/dani_seres_do_papel
-          artifacts/dani-seres-do-papel-linux/assets/**
         draft: false
         prerelease: false
       env:
