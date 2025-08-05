@@ -6,7 +6,6 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     let screen_width = screen_width();
     let screen_height = screen_height();
 
-    // Título
     let title = "🐉 Dani e os Seres de Papel 🐉";
     let title_size = 40.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
@@ -19,7 +18,6 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
         emoji_font,
     );
 
-    // Instruções
     // let instructions = "Use ↑ e ↓ para navegar ou clique. Pressione Enter para selecionar.";
     // let inst_size = 20.0;
     // let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
@@ -31,7 +29,6 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     //     WHITE,
     // );
 
-    // Campo de nome do jogador
     let name_label = "Nome do Jogador:";
     let name_label_size = 22.0;
     let name_label_dims = measure_text(name_label, None, name_label_size as u16, 1.0);
@@ -43,25 +40,22 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
         ORANGE,
     );
 
-    // Campo de input do nome
     let input_width = 300.0;
     let input_height = 40.0;
     let input_x = (screen_width - input_width) / 2.0;
     let input_y = screen_height * 0.42;
     
-    // Fundo do campo de input
     let input_color = if is_editing_name {
-        Color::new(0.2, 0.3, 0.8, 0.3) // Azul quando editando
+        Color::new(0.2, 0.3, 0.8, 0.3)
     } else {
-        Color::new(0.3, 0.3, 0.3, 0.5) // Cinza quando não editando
+        Color::new(0.3, 0.3, 0.3, 0.5)
     };
     draw_rectangle(input_x, input_y, input_width, input_height, input_color);
     draw_rectangle_lines(input_x, input_y, input_width, input_height, 2.0, WHITE);
     
-    // Texto do nome
     let name_text_size = 20.0;
     let display_name = if is_editing_name {
-        format!("{}|", player_name) // Cursor piscando
+        format!("{}|", player_name)
     } else {
         player_name.to_string()
     };
@@ -74,7 +68,6 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
         WHITE,
     );
     
-    // Instrução para editar nome
     let edit_instruction = if is_editing_name {
         "Digite o nome e pressione Enter para confirmar"
     } else {
@@ -90,30 +83,44 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
         LIGHTGRAY,
     );
 
-    // Opções do menu
     let start_text = match selection {
         MenuSelection::Start => ">> Iniciar <<",
+        MenuSelection::SoundSettings => "Iniciar",
         MenuSelection::Quit => "Iniciar",
     };
     let start_color = match selection {
         MenuSelection::Start => LIME,
+        MenuSelection::SoundSettings => GRAY,
+        MenuSelection::Quit => GRAY,
+    };
+
+    let sound_text = match selection {
+        MenuSelection::Start => "Configurações de Som",
+        MenuSelection::SoundSettings => ">> Configurações de Som <<",
+        MenuSelection::Quit => "Configurações de Som",
+    };
+    let sound_color = match selection {
+        MenuSelection::Start => GRAY,
+        MenuSelection::SoundSettings => BLUE,
         MenuSelection::Quit => GRAY,
     };
 
     let quit_text = match selection {
         MenuSelection::Start => "Sair",
+        MenuSelection::SoundSettings => "Sair",
         MenuSelection::Quit => ">> Sair <<",
     };
     let quit_color = match selection {
         MenuSelection::Start => GRAY,
+        MenuSelection::SoundSettings => GRAY,
         MenuSelection::Quit => RED,
     };
 
     let option_size = 30.0;
     let start_dims = measure_text(start_text, None, option_size as u16, 1.0);
+    let sound_dims = measure_text(sound_text, None, option_size as u16, 1.0);
     let quit_dims = measure_text(quit_text, None, option_size as u16, 1.0);
 
-    // Desenhar área clicável para "Iniciar"
     let start_x = (screen_width - start_dims.width) / 2.0;
     let start_y = screen_height * 0.6;
     if matches!(selection, MenuSelection::Start) {
@@ -128,9 +135,22 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
 
     draw_text(start_text, start_x, start_y, option_size, start_color);
 
-    // Desenhar área clicável para "Sair"
+    let sound_x = (screen_width - sound_dims.width) / 2.0;
+    let sound_y = screen_height * 0.7;
+    if matches!(selection, MenuSelection::SoundSettings) {
+        draw_rectangle(
+            sound_x - 10.0,
+            sound_y - 25.0,
+            sound_dims.width + 20.0,
+            option_size + 10.0,
+            Color::new(0.0, 0.0, 1.0, 0.1),
+        );
+    }
+
+    draw_text(sound_text, sound_x, sound_y, option_size, sound_color);
+
     let quit_x = (screen_width - quit_dims.width) / 2.0;
-    let quit_y = screen_height * 0.7;
+    let quit_y = screen_height * 0.8;
     if matches!(selection, MenuSelection::Quit) {
         draw_rectangle(
             quit_x - 10.0,
@@ -149,7 +169,6 @@ pub fn get_clicked_menu_option(mouse_x: f32, mouse_y: f32) -> Option<MenuSelecti
     let screen_width = screen_width();
     let screen_height = screen_height();
 
-    // Área do botão "Iniciar"
     let start_y = screen_height * 0.6;
     let start_text = ">> Iniciar <<";
     let option_size = 30.0;
@@ -164,8 +183,20 @@ pub fn get_clicked_menu_option(mouse_x: f32, mouse_y: f32) -> Option<MenuSelecti
         return Some(MenuSelection::Start);
     }
 
-    // Área do botão "Sair"
-    let quit_y = screen_height * 0.7;
+    let sound_y = screen_height * 0.7;
+    let sound_text = ">> Configurações de Som <<";
+    let sound_dims = measure_text(sound_text, None, option_size as u16, 1.0);
+    let sound_x = (screen_width - sound_dims.width) / 2.0;
+
+    if mouse_x >= sound_x - 20.0
+        && mouse_x <= sound_x + sound_dims.width + 20.0
+        && mouse_y >= sound_y - 20.0
+        && mouse_y <= sound_y + option_size + 10.0
+    {
+        return Some(MenuSelection::SoundSettings);
+    }
+
+    let quit_y = screen_height * 0.8;
     let quit_text = ">> Sair <<";
     let quit_dims = measure_text(quit_text, None, option_size as u16, 1.0);
     let quit_x = (screen_width - quit_dims.width) / 2.0;
