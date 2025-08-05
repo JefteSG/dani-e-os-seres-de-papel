@@ -11,6 +11,9 @@ pub struct Player {
     pub max_health: u32,
     pub attack: u32,
     pub defense: u32,
+    pub level: u32,
+    pub experience: u32,
+    pub experience_to_next_level: u32,
     pub status_effects: HashMap<StatusEffect, u32>,
 }
 
@@ -24,8 +27,43 @@ impl Player {
             max_health: 100,
             attack: 10,
             defense: 8,
+            level: 1,
+            experience: 0,
+            experience_to_next_level: 100,
             status_effects: HashMap::new(),
         }
+    }
+
+    pub fn gain_experience(&mut self, exp: u32) -> bool {
+        self.experience += exp;
+        
+        if self.experience >= self.experience_to_next_level {
+            self.level_up();
+            return true;
+        }
+        false
+    }
+
+    pub fn level_up(&mut self) {
+        self.level += 1;
+        
+        self.experience_to_next_level = self.level * 100 + (self.level - 1) * 50;
+        
+        let health_bonus = 25;
+        
+        self.max_health += health_bonus;
+        self.health = self.max_health;
+        
+        println!("🎉 {} subiu para o nível {}!", self.name, self.level);
+        println!("   HP: {} | ATK: {} | DEF: {}", self.max_health, self.attack, self.defense);
+        println!("   💚 +{} HP máximo (ataque e defesa vêm das cartas)", health_bonus);
+    }
+
+    pub fn get_experience_progress(&self) -> f32 {
+        if self.experience_to_next_level == 0 {
+            return 1.0;
+        }
+        (self.experience as f32) / (self.experience_to_next_level as f32)
     }
 }
 
@@ -48,7 +86,6 @@ impl Entity for Player {
     }
 
     fn heal(&mut self, heal: u32) {
-        // só pode curar até a vida máxima
         self.health = self.health.saturating_add(heal);
         if self.health > self.max_health {
             self.health = self.max_health;
@@ -56,9 +93,8 @@ impl Entity for Player {
     }
 
     fn status_effect(&mut self, status_effect: StatusEffect, duration: u32) {
-        // Permitir acumulação de status effects
         if let Some(existing_duration) = self.status_effects.get_mut(&status_effect) {
-            *existing_duration += duration; // Acumular duração
+            *existing_duration += duration;
         } else {
             self.status_effects.insert(status_effect, duration);
         }
@@ -74,7 +110,6 @@ impl Entity for Player {
                     self.health = self.health.saturating_sub(5);
                 }
                 StatusEffect::Burn => {
-                    // queimadura respeita defesa porem da o dobro de dano
                     let damage_final = 2 * self.attack.saturating_sub(self.defense);
                     self.health = self.health.saturating_sub(damage_final);
                 }
@@ -91,7 +126,4 @@ impl Entity for Player {
             self.status_effects.remove(&effect);
         }
     }
-    // fn is_dead(&mut self){
-    //     self.
-    // }
 }

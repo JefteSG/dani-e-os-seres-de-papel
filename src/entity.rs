@@ -9,5 +9,4 @@ pub trait Entity {
     fn heal(&mut self, heal: u32);
     fn status_effect(&mut self, status_effect: StatusEffect, duration: u32);
     fn apply_status_effects(&mut self);
-    // fn new_hand(&mut self);
 }
