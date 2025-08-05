@@ -1,6 +1,6 @@
 [package]
 name = "dani_seres_do_papel"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2021"
 authors = ["JefteSG"]
 description = "Dani e os Seres de Papel - Jogo de cartas estratégico"
