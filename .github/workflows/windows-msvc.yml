@@ -100,16 +100,25 @@ jobs:
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
-        path: dist/
+        path: artifacts/
+
+    - name: List downloaded files
+      run: |
+        echo "=== Listing downloaded artifacts ==="
+        find artifacts/ -type f -name "*" | head -20
+        echo "=== Windows artifacts ==="
+        ls -la artifacts/dani-seres-do-papel-windows-msvc/ || echo "Windows artifacts not found"
+        echo "=== Linux artifacts ==="
+        ls -la artifacts/dani-seres-do-papel-linux/ || echo "Linux artifacts not found"
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/windows-msvc/dani_seres_do_papel.exe
-          dist/windows-msvc/assets/**
-          dist/linux/dani_seres_do_papel
-          dist/linux/assets/**
+          artifacts/dani-seres-do-papel-windows-msvc/dani_seres_do_papel.exe
+          artifacts/dani-seres-do-papel-windows-msvc/assets/**
+          artifacts/dani-seres-do-papel-linux/dani_seres_do_papel
+          artifacts/dani-seres-do-papel-linux/assets/**
         draft: false
         prerelease: false
       env:
