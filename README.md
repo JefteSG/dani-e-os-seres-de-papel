@@ -17,6 +17,86 @@ Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
 - **Sistema de partículas** para feedback visual
 - **Persistência de progresso** via arquivo `save_game.json`
 
+## 📥 Download e Instalação
+
+### 🪟 Windows
+
+#### **Opção 1: Download da Release (Recomendado)**
+1. **📥 Baixe**: Vá para [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
+2. **📦 Download**: Clique em `dani-seres-do-papel-windows.zip`
+3. **📂 Extraia**: Extraia o arquivo ZIP
+4. **🎮 Execute**: Clique duas vezes em `dani_seres_do_papel.exe`
+
+#### **Opção 2: Compilação Local**
+```bash
+# Instale o Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Clone o repositório
+git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
+cd dani-e-os-seres-de-papel
+
+# Compile para Windows
+cargo build --release --target x86_64-pc-windows-msvc
+
+# Execute
+./target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe
+```
+
+### 🐧 Linux
+
+#### **Opção 1: Download da Release (Recomendado)**
+1. **📥 Baixe**: Vá para [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
+2. **📦 Download**: Clique em `dani-seres-do-papel-linux.tar.gz`
+3. **📂 Extraia**: 
+   ```bash
+   tar -xzf dani-seres-do-papel-linux.tar.gz
+   ```
+4. **🎮 Execute**: 
+   ```bash
+   cd dani-seres-do-papel
+   chmod +x dani_seres_do_papel
+   ./dani_seres_do_papel
+   ```
+
+#### **Opção 2: Compilação Local**
+```bash
+# Instale dependências do sistema
+sudo apt-get update
+sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+
+# Instale o Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Clone o repositório
+git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
+cd dani-e-os-seres-de-papel
+
+# Compile
+cargo build --release
+
+# Execute
+./target/release/dani_seres_do_papel
+```
+
+### 🍎 macOS
+
+#### **Compilação Local**
+```bash
+# Instale o Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Clone o repositório
+git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
+cd dani-e-os-seres-de-papel
+
+# Compile
+cargo build --release
+
+# Execute
+./target/release/dani_seres_do_papel
+```
+
 ## ⚙️ Sistema de Cooldown
 O jogo utiliza um sistema de espera entre turnos para melhorar a jogabilidade:
 
@@ -34,7 +114,7 @@ O projeto inclui:
 - **Arte de cartas** e inimigos em PNG
 - **Fontes de emoji** para elementos visuais
 
-## 🚀 Como Executar
+## 🚀 Como Executar (Desenvolvimento)
 
 ### Linux/macOS
 1. Certifique-se de ter o Rust instalado
