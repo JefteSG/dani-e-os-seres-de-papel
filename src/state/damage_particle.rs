@@ -29,7 +29,7 @@ impl DamageParticle {
     pub fn update(&mut self, dt: f32) {
         self.x += self.velocity_x * dt;
         self.y += self.velocity_y * dt;
-        self.velocity_y += 200.0 * dt; // Gravidade
+        self.velocity_y += 200.0 * dt;
         self.life -= dt;
     }
 

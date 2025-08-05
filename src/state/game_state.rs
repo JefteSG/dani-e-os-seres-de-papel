@@ -26,21 +26,22 @@ pub enum AppState {
     EnemySelection,
     Battle(BattleState),
     GameOver,
+    SoundSettings,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct EnemyInfo {
     pub id: u32,
     pub name: String,
-    pub base_health: u32,     // HP base (não muda)
-    pub base_attack: u32,     // ATK base (não muda)
-    pub base_defense: u32,    // DEF base (não muda)
-    pub health: u32,          // HP atual (calculado)
-    pub max_health: u32,      // HP máximo (calculado)
-    pub attack: u32,          // ATK atual (calculado)
-    pub defense: u32,         // DEF atual (calculado)
-    pub level: u32,           // Nível do inimigo (aumenta a cada derrota)
-    pub times_defeated: u32,  // Quantas vezes foi derrotado
+    pub base_health: u32,     
+    pub base_attack: u32,     
+    pub base_defense: u32,    
+    pub health: u32,          
+    pub max_health: u32,      
+    pub attack: u32,          
+    pub defense: u32,         
+    pub level: u32,           
+    pub times_defeated: u32,  
     pub is_unlocked: bool,
     pub is_defeated: bool,
     pub emoji: Option<String>,
@@ -52,6 +53,7 @@ pub struct SaveData {
     pub enemies: Vec<EnemyInfo>,
     pub persistent_player: Option<PlayerSaveData>,
     pub player_name: String,
+    pub sound_settings: SoundSettings,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -61,6 +63,17 @@ pub struct PlayerSaveData {
     pub max_health: u32,
     pub attack: u32,
     pub defense: u32,
+    pub level: u32,
+    pub experience: u32,
+    pub experience_to_next_level: u32,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SoundSettings {
+    pub music_volume: f32,
+    pub sfx_volume: f32,
+    pub music_enabled: bool,
+    pub sfx_enabled: bool,
 }
 
 pub struct GameState {
@@ -70,11 +83,18 @@ pub struct GameState {
     pub card_textures: CardTextureManager,
     pub enemies: Vec<EnemyInfo>,
     pub selected_enemy_index: usize,
-    pub persistent_player: Option<Player>, // Para manter status entre batalhas
-    pub player_name: String,              // Nome do jogador
-    pub is_editing_name: bool,            // Se está editando o nome
-    pub emoji_font: Option<Font>,         // Fonte para emojis
-    pub window_too_small: bool,           // Se a janela está muito pequena
+    pub persistent_player: Option<Player>, 
+    pub player_name: String,              
+    pub is_editing_name: bool,            
+    pub emoji_font: Option<Font>,         
+    pub window_too_small: bool,           
+    pub show_player_info: bool,           
+    pub show_instructions: bool,          
+    pub music_volume: f32,                
+    pub sfx_volume: f32,                  
+    pub music_enabled: bool,              
+    pub sfx_enabled: bool,                
+    pub music_started: bool,              
 
 }
 
@@ -161,14 +181,20 @@ impl GameState {
             enemies,
             selected_enemy_index: 0,
             persistent_player: None,
-            player_name: "Jogador".to_string(), // Nome padrão
+            player_name: "Jogador".to_string(), 
             is_editing_name: false,
             emoji_font: None,
             window_too_small: false,
+            show_player_info: true,
+            show_instructions: false,
+            music_volume: 0.5,
+            sfx_volume: 0.5,
+            music_enabled: true,
+            sfx_enabled: true,
+            music_started: false,
 
         };
         
-        // Carregar progresso salvo
         game_state.load_progress();
         
         game_state
@@ -179,21 +205,17 @@ impl GameState {
     }
 
     pub fn update(&mut self) {
-        // Verificar se a janela está muito pequena e ajustar comportamento
         let current_width = screen_width();
         let current_height = screen_height();
         let min_width = 800.0;
         let min_height = 600.0;
         
-        // Atualizar o status da janela
         self.window_too_small = current_width < min_width || current_height < min_height;
         
-        // Se a janela estiver muito pequena, bloquear todas as interações
         if self.window_too_small {
-            return; // Não processar nenhuma interação
+            return;
         }
         
-        // Calcule o índice do clique antes do bloco mutável para evitar borrow duplo
         let mut clicked_card_index = None;
         if let AppState::Battle(battle) = &self.app_state {
             if battle.turn.player_turn() && !battle.waiting_for_cooldown {
@@ -201,29 +223,29 @@ impl GameState {
                 clicked_card_index = self.get_clicked_card_index(mouse_x, mouse_y, &battle.player.hand);
             }
         }
+        if !self.music_started && self.music_enabled {
+            self.play_music_with_current_settings();
+            self.music_started = true;
+        }
+
         match &mut self.app_state {
             AppState::Menu => {
-                // Lógica de edição de nome
                 if self.is_editing_name {
-                    // Processar input de texto
                     if is_key_pressed(KeyCode::Enter) {
                         self.is_editing_name = false;
                         if self.player_name.trim().is_empty() {
                             self.player_name = "Jogador".to_string();
                         }
-                        println!("Nome do jogador: {}", self.player_name);
-                            // Salvar o nome do jogador
                         self.save_progress();
                     }
                     if is_key_pressed(KeyCode::Escape) {
                         self.is_editing_name = false;
-                        self.player_name = "Jogador".to_string(); // Resetar para padrão
+                        self.player_name = "Jogador".to_string();
                     }
                     if is_key_pressed(KeyCode::Backspace) && !self.player_name.is_empty() {
                         self.player_name.pop();
                     }
                     
-                    // Capturar caracteres digitados
                     for key_code in [
                         KeyCode::A, KeyCode::B, KeyCode::C, KeyCode::D, KeyCode::E,
                         KeyCode::F, KeyCode::G, KeyCode::H, KeyCode::I, KeyCode::J,
@@ -251,12 +273,19 @@ impl GameState {
                         }
                     }
                 } else {
-                    // Navegação normal do menu
                     if is_key_pressed(KeyCode::Up) || is_key_pressed(KeyCode::W) {
-                        self.selection = MenuSelection::Start;
+                        self.selection = match self.selection {
+                            MenuSelection::Start => MenuSelection::Start,
+                            MenuSelection::SoundSettings => MenuSelection::Start,
+                            MenuSelection::Quit => MenuSelection::SoundSettings,
+                        };
                     }
                     if is_key_pressed(KeyCode::Down) || is_key_pressed(KeyCode::S) {
-                        self.selection = MenuSelection::Quit;
+                        self.selection = match self.selection {
+                            MenuSelection::Start => MenuSelection::SoundSettings,
+                            MenuSelection::SoundSettings => MenuSelection::Quit,
+                            MenuSelection::Quit => MenuSelection::Quit,
+                        };
                     }
                     if is_key_pressed(KeyCode::Tab) {
                         self.is_editing_name = true;
@@ -265,16 +294,13 @@ impl GameState {
                         self.execute_menu_selection();
                     }
                 }
-                
-                // Clique do mouse (funciona sempre)
+
                 if is_mouse_button_pressed(MouseButton::Left) {
                     let (mouse_x, mouse_y) = mouse_position();
                     
-                    // Verificar clique no campo de nome
                     if crate::state::ui::menu::is_name_field_clicked(mouse_x, mouse_y) {
                         self.is_editing_name = !self.is_editing_name;
                     }
-                    // Verificar clique nas opções do menu (apenas se não estiver editando nome)
                     else if !self.is_editing_name {
                         if let Some(clicked_option) = crate::state::ui::menu::get_clicked_menu_option(mouse_x, mouse_y) {
                             self.selection = clicked_option;
@@ -283,7 +309,6 @@ impl GameState {
                     }
                 }
                 
-                // Hover do mouse (apenas se não estiver editando nome)
                 if !self.is_editing_name {
                     let (mouse_x, mouse_y) = mouse_position();
                     if let Some(hovered_option) = crate::state::ui::menu::get_clicked_menu_option(mouse_x, mouse_y) {
@@ -292,7 +317,6 @@ impl GameState {
                 }
             }
             AppState::EnemySelection => {
-                // Navegação com teclado
                 if is_key_pressed(KeyCode::Left) || is_key_pressed(KeyCode::A) {
                     if self.selected_enemy_index > 0 {
                         self.selected_enemy_index -= 1;
@@ -304,27 +328,26 @@ impl GameState {
                     }
                 }
                 
-                // Seleção com Enter ou clique
+                if is_key_pressed(KeyCode::I) {
+                    self.show_instructions = !self.show_instructions;
+                }
+                
                 if is_key_pressed(KeyCode::Enter) {
                     self.start_battle_with_selected_enemy();
                 }
                 
-                // Voltar ao menu com ESC
                 if is_key_pressed(KeyCode::Escape) {
                     self.app_state = AppState::Menu;
                 }
                 
-                // Sair do jogo com Q
                 if is_key_pressed(KeyCode::Q) {
                     std::process::exit(0);
                 }
                 
-                // Reset do progresso com R (segurando Shift)
                 if is_key_pressed(KeyCode::R) && (is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift)) {
                     self.reset_progress();
                 }
                 
-                // Clique do mouse (será implementado na UI)
                 if is_mouse_button_pressed(MouseButton::Left) {
                     let (mouse_x, mouse_y) = mouse_position();
                     if let Some(clicked_enemy) = self.get_clicked_enemy_index(mouse_x, mouse_y) {
@@ -334,37 +357,26 @@ impl GameState {
                 }
             }
             AppState::Battle(battle) => {
-                if !battle.music_started {
-                    self.card_textures.play_background_music();
-                    battle.music_started = true;
-                }
                 
-                // Processar scroll do log de batalha (apenas se há muitas mensagens)
-                let max_visible_lines = 8; // Número de linhas visíveis no log
+                let max_visible_lines = 8;
                 if battle.battle_log.len() > max_visible_lines {
                     if is_key_pressed(KeyCode::Up) || is_key_pressed(KeyCode::W) {
-                        // Scroll para cima
                         battle.log_scroll_offset = (battle.log_scroll_offset - 1.0).max(0.0);
                     }
                     if is_key_pressed(KeyCode::Down) || is_key_pressed(KeyCode::S) {
-                        // Scroll para baixo
                         let max_scroll = (battle.battle_log.len() - max_visible_lines) as f32;
                         battle.log_scroll_offset = (battle.log_scroll_offset + 1.0).min(max_scroll);
                     }
                     if is_key_pressed(KeyCode::Home) {
-                        // Ir para o topo
                         battle.log_scroll_offset = 0.0;
                     }
                     if is_key_pressed(KeyCode::End) {
-                        // Ir para o final
                         battle.log_scroll_offset = (battle.battle_log.len() - max_visible_lines) as f32;
                     }
                 } else {
-                    // Se não há muitas mensagens, manter scroll no final
                     battle.log_scroll_offset = 0.0;
                 }
                 if battle.turn.turn_over() {
-                    // Empate - acabaram os turnos
                     battle.current_message = "⏰ TEMPO ESGOTADO! Acabaram os turnos!".to_string();
                     battle.add_battle_end_log("Empate");
                     self.winner = Some("Empate".to_string());
@@ -373,37 +385,26 @@ impl GameState {
                     return;
                 }
                 if battle.turn.player_turn() {
-                    // Processar slow motion primeiro se ativo
                     if battle.is_final_blow {
                         let frame_time = get_frame_time();
                         battle.slow_motion_timer -= frame_time;
                         
-                        println!("DEBUG: Slow motion ativo - Timer: {:.2}, Frame time: {:.4}", 
-                                 battle.slow_motion_timer, frame_time);
-                        
-                        // Atualizar partículas mesmo durante slow motion
                         for particle in &mut battle.damage_particles {
                             particle.update(frame_time);
                         }
                         battle.damage_particles.retain(|p| p.is_alive());
                         
-                        // Forçar finalização após 1 segundo ou timeout de segurança
                         if battle.slow_motion_timer <= 0.0 || battle.slow_motion_timer > 2.0 {
-                            println!("DEBUG: Finalizando slow motion - Timer: {:.2}", battle.slow_motion_timer);
                             battle.slow_motion_timer = 0.0;
-                            println!("DEBUG: Resetando is_final_blow = false");
                             battle.is_final_blow = false;
                             
-                            // Determinar vencedor baseado na saúde
                             if battle.enemy.health <= 0 {
-                                println!("DEBUG: Jogador venceu!");
                                 battle.add_battle_end_log("Jogador");
                                 self.winner = Some("Jogador".to_string());
                                 self.on_battle_end("Jogador");
                                 self.app_state = AppState::GameOver;
                                 return;
                             } else {
-                                println!("DEBUG: Inimigo venceu!");
                                 battle.add_battle_end_log("Inimigo");
                                 self.winner = Some("Inimigo".to_string());
                                 self.on_battle_end("Inimigo");
@@ -411,11 +412,9 @@ impl GameState {
                                 return;
                             }
                         }
-                        // Não processar nenhuma interação durante slow motion
                         return;
                     }
                     
-                    // Verificar se o jogador não tem cartas e o deck está vazio
                     if battle.player.hand.cards.is_empty() && battle.deck.cards.is_empty() {
                         battle.current_message = "🃏 Sem cartas! Passando turno...".to_string();
                         battle.turn_cooldown = PLAYER_TURN_COOLDOWN;
@@ -451,7 +450,6 @@ impl GameState {
                             self.card_textures.play_card_use_sound();
                             battle.card_animation_timer = 0.3;
                             
-                            // Adicionar log de uso de carta
                             battle.add_card_log("Jogador", &card.name);
                             
                             match card.card_type {
@@ -477,17 +475,15 @@ impl GameState {
                                     );
                                 }
                                 CardType::Poison(_) => {
-                                    battle.enemy.status_effect(StatusEffect::Poison, 4); // Aumentado para 3 turnos
+                                    battle.enemy.status_effect(StatusEffect::Poison, 4);
                                     battle.current_message =
                                         format!("Você usou {} e envenenou o inimigo!", card.name);
                                 }
                                 CardType::Heal(heal_percent) => {
-                                    // Calcular baseado no percentual passado
                                     let heal_amount = (battle.player.max_health as f32 * heal_percent) as u32;
                                     battle.player.heal(heal_amount);
                                     battle.current_message =
                                         format!("Você usou {} e se curou em {}!", card.name, heal_amount);
-                                    // adicionar log informando que recebeu tanto de cura
                                     battle.add_heal_log("Jogador", heal_amount);
                                         
                                 }
@@ -505,18 +501,16 @@ impl GameState {
                             battle.enemy.damage(damage_dealt);
                             let actual_damage = enemy_health_before - battle.enemy.health;
                             
-                            // Adicionar log de dano
                             let enemy_name = battle.enemy.name.clone();
                             battle.add_damage_log("Jogador", &enemy_name, damage_dealt, actual_damage);
                             
                             battle.enemy.apply_status_effects();
                             
-                            // Verificar se é o golpe final
                             if battle.enemy.health <= 0 {
                                 battle.is_final_blow = true;
-                                battle.slow_motion_timer = 1.0; // 1 segundo de slow motion
+                                battle.slow_motion_timer = 1.0;
                                 battle.current_message = "💀 GOLPE FINAL! 💀".to_string();
-                                battle.waiting_for_cooldown = true; // Importante: definir como true para ativar a lógica do slow motion
+                                battle.waiting_for_cooldown = true;
                             } else {
                                 battle.enemy_shake_timer = ENEMY_SHAKE_DURATION;
                                 let enemy_x = screen_width() / 2.0;
@@ -544,43 +538,31 @@ impl GameState {
                             battle.waiting_for_cooldown = false;
                             battle.turn.next_turn();
                             
-                            // Adicionar log de mudança de turno (jogador -> inimigo)
                             let enemy_name = battle.enemy.name.clone();
                             battle.add_turn_log(&enemy_name);
                         }
                     }
                 } else {
-                    // Processar slow motion primeiro se ativo
                     if battle.is_final_blow {
                         let frame_time = get_frame_time();
                         battle.slow_motion_timer -= frame_time;
                         
-                        println!("DEBUG: Slow motion ativo - Timer: {:.2}, Frame time: {:.4}", 
-                                 battle.slow_motion_timer, frame_time);
-                        
-                        // Atualizar partículas mesmo durante slow motion
                         for particle in &mut battle.damage_particles {
                             particle.update(frame_time);
                         }
                         battle.damage_particles.retain(|p| p.is_alive());
                         
-                        // Forçar finalização após 1 segundo ou timeout de segurança
                         if battle.slow_motion_timer <= 0.0 || battle.slow_motion_timer > 2.0 {
-                            println!("DEBUG: Finalizando slow motion - Timer: {:.2}", battle.slow_motion_timer);
                             battle.slow_motion_timer = 0.0;
-                            println!("DEBUG: Resetando is_final_blow = false");
                             battle.is_final_blow = false;
                             
-                            // Determinar vencedor baseado na saúde
                             if battle.enemy.health <= 0 {
-                                println!("DEBUG: Jogador venceu!");
                                 battle.add_battle_end_log("Jogador");
                                 self.winner = Some("Jogador".to_string());
                                 self.on_battle_end("Jogador");
                                 self.app_state = AppState::GameOver;
                                 return;
                             } else {
-                                println!("DEBUG: Inimigo venceu!");
                                 battle.add_battle_end_log("Inimigo");
                                 self.winner = Some("Inimigo".to_string());
                                 self.on_battle_end("Inimigo");
@@ -588,13 +570,11 @@ impl GameState {
                                 return;
                             }
                         }
-                        // Não processar nenhuma interação durante slow motion
                         return;
                     }
                     
                     if !battle.waiting_for_cooldown {
                         if let Some(card) = battle.deck.cards.choose(&mut thread_rng()).cloned() {
-                            // Tocar som específico do inimigo baseado no nome
                             let enemy_name = battle.enemy.name.to_lowercase();
                             let sound_key = if enemy_name.contains("esqueleto") || enemy_name.contains("skeleton") {
                                 "skeleton"
@@ -605,7 +585,7 @@ impl GameState {
                             } else if enemy_name.contains("devourer") || enemy_name.contains("psicopapão") {
                                 "devourer"
                             } else {
-                                "skeleton" // Fallback
+                                "skeleton"
                             };
                             self.card_textures.play_enemy_sound(sound_key);
                             match card.card_type {
@@ -625,11 +605,10 @@ impl GameState {
                                         format!("Inimigo aumentou defesa em {}!", defense);
                                 }
                                 CardType::Poison(_) => {
-                                    battle.player.status_effect(StatusEffect::Poison, 4); // Aumentado para 3 turnos
+                                    battle.player.status_effect(StatusEffect::Poison, 4);
                                     battle.current_message = "Inimigo aplicou veneno!".to_string();
                                 }
-                                CardType::Heal(heal_percent) => {
-                                    // Calcular baseado no percentual passado
+                                CardType::Heal(heal_percent) => {   
                                     let heal_amount = (battle.enemy.max_health as f32 * heal_percent) as u32;
                                     battle.enemy.heal(heal_amount);
                                     battle.current_message = format!("Inimigo curou {}!", heal_amount);
@@ -645,18 +624,16 @@ impl GameState {
                             battle.player.damage(damage_dealt);
                             let actual_damage = player_health_before - battle.player.health;
                             
-                            // Adicionar log de dano
                             let enemy_name = battle.enemy.name.clone();
                             battle.add_damage_log(&enemy_name, "Jogador", damage_dealt, actual_damage);
                             
                             battle.player.apply_status_effects();
                             
-                            // Verificar se é o golpe final
                             if battle.player.health <= 0 {
                                 battle.is_final_blow = true;
-                                battle.slow_motion_timer = 1.0; // 1 segundo de slow motion
+                                battle.slow_motion_timer = 1.0;
                                 battle.current_message = "💀 GOLPE FINAL! 💀".to_string();
-                                battle.waiting_for_cooldown = true; // Importante: definir como true para ativar a lógica do slow motion
+                                battle.waiting_for_cooldown = true;
                             } else {
                                 let player_x = screen_width() / 2.0;
                                 let player_y = screen_height() * 0.8;
@@ -676,7 +653,6 @@ impl GameState {
                         }
                     } else {
 
-                        // Processar cooldowns e animações normais
                         battle.turn_cooldown -= get_frame_time();
                         battle.enemy_shake_timer =
                             (battle.enemy_shake_timer - get_frame_time()).max(0.0);
@@ -690,13 +666,54 @@ impl GameState {
                             battle.waiting_for_cooldown = false;
                             battle.turn.next_turn();
                             
-                            // Adicionar log de mudança de turno (inimigo -> jogador)
                             battle.add_turn_log("Jogador");
                         }
                     }
                 }
             }
 
+            AppState::SoundSettings => {
+                if is_key_pressed(KeyCode::Space) {
+                    self.music_enabled = !self.music_enabled;
+                    if self.music_started {
+                        self.play_music_with_current_settings();
+                    }
+                }
+                if is_key_pressed(KeyCode::S) {
+                    self.sfx_enabled = !self.sfx_enabled;
+                }
+                
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let (mouse_x, mouse_y) = mouse_position();
+                    let screen_width = screen_width();
+                    let screen_height = screen_height();
+                    let bar_width = 300.0;
+                    let bar_height = 20.0;
+                    let bar_x = (screen_width - bar_width) / 2.0;
+                    let music_bar_y = screen_height * 0.4;
+                    let sfx_bar_y = screen_height * 0.6;
+                    
+                    if mouse_x >= bar_x && mouse_x <= bar_x + bar_width &&
+                       mouse_y >= music_bar_y && mouse_y <= music_bar_y + bar_height {
+                        let relative_x = (mouse_x - bar_x) / bar_width;
+                        self.music_volume = relative_x.max(0.0).min(1.0);
+                        if self.music_enabled && self.music_started {
+                            self.play_music_with_current_settings();
+                        }
+                    }
+                    
+                    if mouse_x >= bar_x && mouse_x <= bar_x + bar_width &&
+                       mouse_y >= sfx_bar_y && mouse_y <= sfx_bar_y + bar_height {
+                        let relative_x = (mouse_x - bar_x) / bar_width;
+                        self.sfx_volume = relative_x.max(0.0).min(1.0);
+                    }
+                }
+                
+                if is_key_pressed(KeyCode::Escape) {
+                    self.app_state = AppState::Menu;
+                    self.save_progress();
+                }
+            }
             AppState::GameOver => {
                                     if is_key_pressed(KeyCode::Escape) {
                         self.app_state = AppState::EnemySelection;
@@ -728,10 +745,8 @@ impl GameState {
     }
 
     pub fn draw(&self) {
-        // Desenhar background primeiro
         self.card_textures.draw_background();
         
-        // Se a janela estiver muito pequena, mostrar aviso
         if self.window_too_small {
             self.draw_window_size_warning();
         }
@@ -741,12 +756,21 @@ impl GameState {
                 crate::state::ui::menu::draw_menu(&self.selection, &self.player_name, self.is_editing_name, self.emoji_font.as_ref());
             }
             AppState::EnemySelection => {
-                crate::state::ui::enemy_selection::draw_enemy_selection(&self.enemies, self.selected_enemy_index, self.emoji_font.as_ref());
+                crate::state::ui::enemy_selection::draw_enemy_selection(&self.enemies, self.selected_enemy_index, self.emoji_font.as_ref(), self.persistent_player.as_ref(), self.show_instructions);
             }
             AppState::Battle(battle) => {
                 crate::state::ui::battle::draw_battle(battle, &self.card_textures, self.emoji_font.as_ref(), &self.enemies[self.selected_enemy_index].image.as_ref().unwrap());
             }
 
+            AppState::SoundSettings => {
+                crate::state::ui::sound_settings::draw_sound_settings(
+                    self.music_volume,
+                    self.sfx_volume,
+                    self.music_enabled,
+                    self.sfx_enabled,
+                    self.emoji_font.as_ref(),
+                );
+            }
             AppState::GameOver => {
                 crate::state::ui::game_over::draw_game_over(&self.winner);
             }
@@ -760,10 +784,8 @@ impl GameState {
         let screen_width = screen_width();
         let screen_height = screen_height();
         
-        // Fundo semi-transparente para o aviso
         draw_rectangle(0.0, 0.0, screen_width, screen_height, Color::new(0.0, 0.0, 0.0, 0.8));
         
-        // Texto do aviso
         let warning_text = "🚫 JANELA BLOQUEADA 🚫";
         let subtitle_text = "Redimensione a janela para pelo menos 800x600";
         let instruction_text = "Use as bordas da janela para redimensionar";
@@ -774,7 +796,6 @@ impl GameState {
         let instruction_size = 16.0;
         let block_size = 20.0;
         
-        // Centralizar textos
         let warning_dims = measure_text(warning_text, None, warning_size as u16, 1.0);
         let subtitle_dims = measure_text(subtitle_text, None, subtitle_size as u16, 1.0);
         let instruction_dims = measure_text(instruction_text, None, instruction_size as u16, 1.0);
@@ -811,6 +832,9 @@ impl GameState {
             MenuSelection::Start => {
                 self.app_state = AppState::EnemySelection;
             }
+            MenuSelection::SoundSettings => {
+                self.app_state = AppState::SoundSettings;
+            }
             MenuSelection::Quit => {
                 std::process::exit(0);
             }
@@ -823,7 +847,7 @@ impl GameState {
         let card_width = 120.0;
         let card_height = 180.0;
         let card_spacing = 10.0;
-        let start_y = screen_height() * 0.75; // Corrigido: mesma posição que draw_player_hand_with_animation
+        let start_y = screen_height() * 0.75;
         let total_width = (hand.cards.len() as f32) * (card_width + card_spacing) - card_spacing;
         let start_x = (screen_width() - total_width) / 2.0;
         for (i, _card) in hand.cards.iter().enumerate() {
@@ -840,14 +864,12 @@ impl GameState {
     fn start_battle_with_selected_enemy(&mut self) {
         let selected_enemy = &self.enemies[self.selected_enemy_index];
         
-        // Verificar se o inimigo está desbloqueado
         if !selected_enemy.is_unlocked {
-            return; // Não fazer nada se o inimigo não estiver desbloqueado
+            return;
         }
 
         let mut deck = Deck::new();
         
-        // Usar jogador persistente ou criar novo
         let player = if let Some(ref persistent_player) = self.persistent_player {
             persistent_player.clone()
         } else {
@@ -861,8 +883,8 @@ impl GameState {
             &selected_enemy.name,
             selected_enemy.health,
             selected_enemy.max_health,
-            selected_enemy.attack,  // Corrigido: attack vem antes
-            selected_enemy.defense, // Corrigido: defense vem depois  
+            selected_enemy.attack,  
+            selected_enemy.defense, 
             &mut deck,
             selected_enemy.image.as_ref().unwrap(),
         );
@@ -886,7 +908,6 @@ impl GameState {
             is_final_blow: false,
         };
         
-        // Adicionar log inicial da batalha
         battle_state.add_battle_start_log(&selected_enemy.name);
         
         self.app_state = AppState::Battle(battle_state);
@@ -898,20 +919,37 @@ impl GameState {
 
     pub fn on_battle_end(&mut self, winner: &str) {
         if winner == "Jogador" {
-
-            let enemy = &mut self.enemies[self.selected_enemy_index];
-            enemy.is_defeated = true;
-            enemy.times_defeated += 1;
+            if let AppState::Battle(battle) = &mut self.app_state {
+                let player = &mut battle.player;
             
-            self.scale_enemy(self.selected_enemy_index);            
-            if self.selected_enemy_index + 1 < self.enemies.len() {
-                self.enemies[self.selected_enemy_index + 1].is_unlocked = true;
-            }
+                let enemy = &mut self.enemies[self.selected_enemy_index];
+                enemy.is_defeated = true;
+                enemy.times_defeated += 1;
             
-            if let AppState::Battle(battle) = &self.app_state {
-                self.persistent_player = Some(battle.player.clone());
-            }
-        } 
+                let exp_gained = enemy.level * 25 + 50;
+                let leveled_up = player.gain_experience(exp_gained);
+                
+                if leveled_up {
+                } else {
+                }
+            
+                let max_health_increase: u32 = (player.max_health as f32 * 0.1) as u32;
+                player.max_health = player.max_health.saturating_add(max_health_increase);
+            
+                player.health = player.max_health;
+                let updated_player = player.clone();
+            
+                drop(battle);
+                self.scale_enemy(self.selected_enemy_index);
+            
+                if self.selected_enemy_index + 1 < self.enemies.len() {
+                    self.enemies[self.selected_enemy_index + 1].is_unlocked = true;
+                }
+            
+                self.persistent_player = Some(updated_player);
+            }            
+        }
+        
         
         self.save_progress();
     }
@@ -919,28 +957,22 @@ impl GameState {
     fn scale_enemy(&mut self, enemy_index: usize) {
         let enemy = &mut self.enemies[enemy_index];
         
-        // Aumentar nível
         enemy.level += 1;
         
-        // Fórmulas de escalabilidade (balanceadas)
-        let scaling_factor = 1.0 + (enemy.times_defeated as f32 * 0.25); // +25% por vitória
-        let level_bonus = (enemy.level - 1) as f32 * 0.20; // +20% por nível
+        let scaling_factor = 1.0 + (enemy.times_defeated as f32 * 0.25);
+        let level_bonus = (enemy.level - 1) as f32 * 0.20;
         let total_multiplier = scaling_factor + level_bonus;
         
-        // Aplicar escalabilidade aos stats
         enemy.health = (enemy.base_health as f32 * total_multiplier) as u32;
         enemy.max_health = enemy.health;
         enemy.attack = (enemy.base_attack as f32 * total_multiplier) as u32;
         enemy.defense = (enemy.base_defense as f32 * total_multiplier) as u32;
         
-        // Garantir valores mínimos
         enemy.health = enemy.health.max(enemy.base_health);
         enemy.max_health = enemy.max_health.max(enemy.base_health);
         enemy.attack = enemy.attack.max(enemy.base_attack);
         enemy.defense = enemy.defense.max(enemy.base_defense);
         
-        println!("🔥 {} subiu para nível {}! Stats aumentados!", enemy.name, enemy.level);
-        println!("   HP: {} | ATK: {} | DEF: {}", enemy.health, enemy.attack, enemy.defense);
     }
 
     const SAVE_FILE: &'static str = "save_game.json";
@@ -948,23 +980,32 @@ impl GameState {
     pub fn save_progress(&self) {
         let player_save_data = self.persistent_player.as_ref().map(|player| PlayerSaveData {
             name: player.name.clone(),
-            health: player.health,
+            health: player.max_health,
             max_health: player.max_health,
             attack: player.attack,
             defense: player.defense,
+            level: player.level,
+            experience: player.experience,
+            experience_to_next_level: player.experience_to_next_level,
         });
+
+        let sound_settings = SoundSettings {
+            music_volume: self.music_volume,
+            sfx_volume: self.sfx_volume,
+            music_enabled: self.music_enabled,
+            sfx_enabled: self.sfx_enabled,
+        };
 
         let save_data = SaveData {
             enemies: self.enemies.clone(),
             persistent_player: player_save_data,
             player_name: self.player_name.clone(),
+            sound_settings,
         };
 
         if let Ok(json) = serde_json::to_string_pretty(&save_data) {
             if let Err(e) = fs::write(Self::SAVE_FILE, json) {
-                println!("Erro ao salvar progresso: {}", e);
             } else {
-                println!("Progresso salvo com sucesso!");
             }
         }
     }
@@ -988,7 +1029,6 @@ impl GameState {
                     }
                     self.player_name = save_data.player_name;
                     
-                    // Converter PlayerSaveData de volta para Player
                     if let Some(player_data) = save_data.persistent_player {
                         let mut deck = Deck::new();
                         let mut player = Player::new(&player_data.name, &mut deck);
@@ -996,31 +1036,35 @@ impl GameState {
                         player.max_health = player_data.max_health;
                         player.attack = player_data.attack;
                         player.defense = player_data.defense;
+                        player.level = player_data.level;
+                        player.experience = player_data.experience;
+                        player.experience_to_next_level = player_data.experience_to_next_level;
                         self.persistent_player = Some(player);
                     }
                     
-                    println!("Progresso carregado com sucesso!");
+                    self.music_volume = save_data.sound_settings.music_volume;
+                    self.sfx_volume = save_data.sound_settings.sfx_volume;
+                    self.music_enabled = save_data.sound_settings.music_enabled;
+                    self.sfx_enabled = save_data.sound_settings.sfx_enabled;
+                    
                 } else {
-                    println!("Erro ao carregar save: arquivo corrompido");
                 }
             }
         }
     }
 
     pub fn reset_progress(&mut self) {
-        // Resetar inimigos para estado inicial
         self.enemies = ENEMIES.clone();
         
-        // Resetar jogador persistente
         self.persistent_player = None;
         
-        // Deletar arquivo de save
-        if Path::new(Self::SAVE_FILE).exists() {
-            if let Err(e) = fs::remove_file(Self::SAVE_FILE) {
-                println!("Erro ao deletar save: {}", e);
-            }
+    }
+
+    pub fn play_music_with_current_settings(&mut self) {
+        if self.music_enabled {
+            self.card_textures.play_background_music_with_volume(self.music_volume);
+        } else {
+            self.card_textures.stop_background_music();
         }
-        
-        println!("🔄 Progresso resetado! Todos os inimigos voltaram ao nível 1.");
     }
 }

@@ -18,10 +18,8 @@ pub fn draw_text_with_emoji(text: &str, x: f32, y: f32, font_size: f32, color: C
     });
     
     if has_emoji && emoji_font.is_some() {
-        // Se tem emoji, renderizar em duas partes: texto normal + emoji
         let mut current_x = x;
         let mut normal_text = String::new();
-        let mut emoji_text = String::new();
         
         for c in text.chars() {
             let code = c as u32;
@@ -33,44 +31,35 @@ pub fn draw_text_with_emoji(text: &str, x: f32, y: f32, font_size: f32, color: C
                           (code >= 0x2700 && code <= 0x27BF);
             
             if is_emoji {
-                // Renderizar texto normal acumulado
                 if !normal_text.is_empty() {
                     draw_text(&normal_text, current_x, y, font_size, color);
                     current_x += measure_text(&normal_text, None, font_size as u16, 1.0).width;
                     normal_text.clear();
                 }
-                // Acumular emoji
-                emoji_text.push(c);
+                if emoji_font.is_some() {
+                    if let Some(font) = emoji_font {
+                        draw_text_ex(&c.to_string(), current_x, y, TextParams { 
+                            font_size: font_size as u16, 
+                            color, 
+                            font: Some(font), 
+                            ..Default::default() 
+                        });
+                        current_x += measure_text(&c.to_string(), Some(font), font_size as u16, 1.0).width;
+                    }
+                }
             } else {
-                // Acumular texto normal
                 normal_text.push(c);
             }
         }
         
-        // Renderizar texto normal final
         if !normal_text.is_empty() {
             draw_text(&normal_text, current_x, y, font_size, color);
-            current_x += measure_text(&normal_text, None, font_size as u16, 1.0).width;
-        }
-        
-        // Renderizar emojis com fonte especial
-        if !emoji_text.is_empty() && emoji_font.is_some() {
-            if let Some(font) = emoji_font {
-                draw_text_ex(&emoji_text, current_x, y, TextParams { 
-                    font_size: font_size as u16, 
-                    color, 
-                    font: Some(font), 
-                    ..Default::default() 
-                });
-            }
         }
     } else {
-        // Usar fonte padrão para texto sem emojis
         draw_text(text, x, y, font_size, color);
     }
 }
 
-// Constantes que serão usadas pelas funções de UI
 const CARD_HOVER_SCALE: f32 = 1.1;
 const ENEMY_SHAKE_INTENSITY: f32 = 5.0;
 
@@ -87,11 +76,9 @@ pub fn draw_player_hand_with_animation(hand: &Hand, battle: &BattleState, card_t
         let base_y = start_y;
         let (mouse_x, mouse_y) = mouse_position();
         
-        // Calcular posição e escala primeiro
         let mut scale = 1.0;
         let mut y_offset = 0.0;
         
-        // Primeira verificação de hover com posição base para determinar escala
         let base_is_hovered = mouse_x >= base_x
             && mouse_x <= base_x + base_card_width
             && mouse_y >= base_y
@@ -111,13 +98,11 @@ pub fn draw_player_hand_with_animation(hand: &Hand, battle: &BattleState, card_t
             }
         }
         
-        // Calcular posição final da carta
         let card_width = base_card_width * scale;
         let card_height = base_card_height * scale;
         let x = base_x - (card_width - base_card_width) / 2.0;
         let y = base_y - (card_height - base_card_height) / 2.0 + y_offset;
         
-        // Verificação final de hover com posição real da carta
         let is_hovered = mouse_x >= x
             && mouse_x <= x + card_width
             && mouse_y >= y
@@ -190,9 +175,8 @@ pub fn draw_enemy_info(battle: &BattleState, margin: f32, font_size: f32, emoji_
         font_size - 2.0,
         LIGHTGRAY,
     );
-    // Status effects do inimigo com duração
     if let Some(poison_duration) = battle.enemy.status_effects.get(&StatusEffect::Poison) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
         draw_text_with_emoji(
             &format!("☠️ ENVENENADO ({})", poison_duration),
@@ -204,7 +188,7 @@ pub fn draw_enemy_info(battle: &BattleState, margin: f32, font_size: f32, emoji_
         );
     }
     if let Some(burn_duration) = battle.enemy.status_effects.get(&StatusEffect::Burn) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
         draw_text_with_emoji(
             &format!("🔥 QUEIMADO ({})", burn_duration),
@@ -239,9 +223,8 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
         font_size - 2.0,
         LIGHTGRAY,
     );
-    // Status effects do jogador com duração
     if let Some(poison_duration) = battle.player.status_effects.get(&StatusEffect::Poison) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
         draw_text_with_emoji(
             &format!("☠️ ENVENENADO ({})", poison_duration),
@@ -253,7 +236,7 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
         );
     }
     if let Some(burn_duration) = battle.player.status_effects.get(&StatusEffect::Burn) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
         draw_text_with_emoji(
             &format!("🔥 QUEIMADO ({})", burn_duration),
@@ -267,15 +250,11 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
 }
 
 pub fn draw_player_info_above_cards(battle: &BattleState, font_size: f32, emoji_font: Option<&Font>) {
-    // Posição das informações do jogador (acima das cartas)
-    // As cartas ficam em screen_height * 0.7, então colocamos as info em 0.55
     let info_y = screen_height() * 0.55;
     let margin = 50.0;
     
-    // Nome do jogador
     draw_text_with_emoji(&format!("🧙 {}", battle.player.name), margin, info_y, font_size + 2.0, BLUE, emoji_font);
     
-    // Barra de vida do jogador
     draw_health_bar(
         margin,
         info_y + 10.0,
@@ -287,7 +266,6 @@ pub fn draw_player_info_above_cards(battle: &BattleState, font_size: f32, emoji_
         Color::new(0.0, 0.3, 0.0, 1.0),
     );
     
-    // Stats do jogador
     let player_stats = format!("ATK {}   DEF {}", battle.player.attack, battle.player.defense);
     draw_text(
         &player_stats,
@@ -297,9 +275,8 @@ pub fn draw_player_info_above_cards(battle: &BattleState, font_size: f32, emoji_
         LIGHTGRAY,
     );
     
-    // Status effects do jogador com duração
     if let Some(poison_duration) = battle.player.status_effects.get(&StatusEffect::Poison) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
         draw_text_with_emoji(
             &format!("☠️ ENVENENADO ({})", poison_duration),
@@ -311,7 +288,7 @@ pub fn draw_player_info_above_cards(battle: &BattleState, font_size: f32, emoji_
         );
     }
     if let Some(burn_duration) = battle.player.status_effects.get(&StatusEffect::Burn) {
-        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6; // Pulsação mais intensa
+        let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
         draw_text_with_emoji(
             &format!("🔥 QUEIMADO ({})", burn_duration),
@@ -368,18 +345,15 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
     let screen_width = screen_width();
     let screen_height = screen_height();
     
-    // Dimensões do quadrado do log
     let log_width = 350.0;
     let log_height = 200.0;
-    let log_x = screen_width - log_width - 20.0; // Canto direito
-    let log_y = 20.0; // Topo da tela
-    
-    // Fundo do log com borda
+    let log_x = screen_width - log_width - 20.0;
+    let log_y = 20.0;
+
     draw_rectangle(log_x - 5.0, log_y - 5.0, log_width + 10.0, log_height + 10.0, Color::new(0.0, 0.0, 0.0, 0.8));
     draw_rectangle(log_x, log_y, log_width, log_height, Color::new(0.1, 0.1, 0.1, 0.9));
     draw_rectangle_lines(log_x, log_y, log_width, log_height, 2.0, Color::new(0.3, 0.3, 0.3, 1.0));
     
-    // Título do log
     let title = "📜 Log de Batalha";
     let title_size = 16.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
@@ -392,17 +366,14 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
         emoji_font,
     );
     
-    // Área de conteúdo do log
     let content_y = log_y + 35.0;
     let content_height = log_height - 45.0;
     let line_height = 18.0;
     let max_visible_lines = (content_height / line_height) as usize;
     
-    // Calcular quais linhas mostrar (com scroll)
     let start_index = battle.log_scroll_offset as usize;
     let end_index = (start_index + max_visible_lines).min(battle.battle_log.len());
     
-    // Desenhar as mensagens do log
     for (i, entry) in battle.battle_log.iter().enumerate().skip(start_index).take(max_visible_lines) {
         if i >= end_index {
             break;
@@ -410,20 +381,17 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
         
         let y_pos = content_y + ((i - start_index) as f32 * line_height);
         
-        // Verificar se a linha está dentro da área visível
         if y_pos > log_y + log_height - 10.0 {
             break;
         }
         
-        // Texto da mensagem (truncar se muito longo)
         let mut display_text = entry.message.clone();
-        let max_chars = 45; // Limite de caracteres por linha
+        let max_chars = 45;
         if display_text.len() > max_chars {
             display_text.truncate(max_chars - 3);
             display_text.push_str("...");
         }
         
-        // Desenhar a mensagem
         draw_text(
             &display_text,
             log_x + 10.0,
@@ -433,16 +401,13 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
         );
     }
     
-    // Indicador de scroll se há mais mensagens
     if battle.battle_log.len() > max_visible_lines {
         let scroll_indicator_x = log_x + log_width - 15.0;
         let scroll_indicator_y = content_y;
         let scroll_indicator_height = content_height - 10.0;
         
-        // Barra de scroll de fundo
         draw_rectangle(scroll_indicator_x, scroll_indicator_y, 8.0, scroll_indicator_height, Color::new(0.2, 0.2, 0.2, 0.8));
         
-        // Indicador de posição do scroll
         let scroll_ratio = if battle.battle_log.len() > max_visible_lines {
             battle.log_scroll_offset / (battle.battle_log.len() - max_visible_lines) as f32
         } else {
@@ -454,7 +419,6 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
         draw_rectangle(scroll_indicator_x + 1.0, indicator_y, 6.0, indicator_height, Color::new(0.6, 0.6, 0.6, 1.0));
     }
     
-    // Instruções de scroll (se necessário)
     if battle.battle_log.len() > max_visible_lines {
         let scroll_text = "WASD Scroll | Home/End";
         let scroll_size = 10.0;
