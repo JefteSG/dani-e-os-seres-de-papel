@@ -1,0 +1,100 @@
+name: Development Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows-msvc-dev:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64-pc-windows-msvc
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build for Windows MSVC
+      run: cargo build --release --target x86_64-pc-windows-msvc
+
+    - name: Create Windows package with embedded assets
+      run: |
+        mkdir -p dist/windows-msvc-dev
+        cp target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe dist/windows-msvc-dev/
+        cp -r assets dist/windows-msvc-dev/
+        
+        # Criar arquivo ZIP com tudo
+        cd dist/windows-msvc-dev
+        7z a -tzip dani-seres-do-papel-windows-msvc-dev.zip dani_seres_do_papel.exe assets/
+        cd ../..
+
+    - name: Upload Windows MSVC artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dani-seres-do-papel-windows-msvc-dev
+        path: |
+          dist/windows-msvc-dev/dani_seres_do_papel.exe
+          dist/windows-msvc-dev/assets/
+          dist/windows-msvc-dev/dani-seres-do-papel-windows-msvc-dev.zip
+        retention-days: 7
+
+  build-linux-dev:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64-unknown-linux-gnu
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build for Linux
+      run: cargo build --release --target x86_64-unknown-linux-gnu
+
+    - name: Create Linux package with embedded assets
+      run: |
+        mkdir -p dist/linux-dev
+        cp target/x86_64-unknown-linux-gnu/release/dani_seres_do_papel dist/linux-dev/
+        cp -r assets dist/linux-dev/
+        
+        # Criar arquivo TAR.GZ com tudo
+        cd dist/linux-dev
+        tar -czf dani-seres-do-papel-linux-dev.tar.gz dani_seres_do_papel assets/
+        cd ../..
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dani-seres-do-papel-linux-dev
+        path: |
+          dist/linux-dev/dani_seres_do_papel
+          dist/linux-dev/assets/
+          dist/linux-dev/dani-seres-do-papel-linux-dev.tar.gz
+        retention-days: 7 
