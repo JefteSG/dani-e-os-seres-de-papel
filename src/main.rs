@@ -1,3 +1,6 @@
+#[cfg(windows)]
+extern crate winapi;
+
 use macroquad::prelude::*;
 
 mod deck;
@@ -9,6 +12,20 @@ mod player;
 mod state;
 
 use state::game_state::GameState;
+
+#[cfg(windows)]
+fn hide_console() {
+    use winapi::um::wincon::GetConsoleWindow;
+    use winapi::um::winuser::{ShowWindow, SW_HIDE};
+    use std::ptr;
+    
+    unsafe {
+        let window = GetConsoleWindow();
+        if !window.is_null() {
+            ShowWindow(window, SW_HIDE);
+        }
+    }
+}
 
 fn window_conf() -> Conf {
     Conf {
@@ -22,6 +39,9 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    #[cfg(windows)]
+    hide_console();
+    
     let mut game_state = GameState::new();
     
     let font = match load_ttf_font("assets/Noto_Emoji/NotoEmoji-VariableFont_wght.ttf").await {

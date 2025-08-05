@@ -32,25 +32,17 @@ jobs:
     - name: Build for Windows MSVC
       run: cargo build --release --target x86_64-pc-windows-msvc
 
-    - name: Create Windows package with embedded assets
+    - name: Create Windows package
       run: |
         mkdir -p dist/windows-msvc
         cp target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe dist/windows-msvc/
         cp -r assets dist/windows-msvc/
-        
-        # Criar arquivo ZIP com tudo
-        cd dist/windows-msvc
-        7z a -tzip dani-seres-do-papel-windows-msvc.zip dani_seres_do_papel.exe assets/
-        cd ../..
 
     - name: Upload Windows MSVC artifact
       uses: actions/upload-artifact@v4
       with:
         name: dani-seres-do-papel-windows-msvc
-        path: |
-          dist/windows-msvc/dani_seres_do_papel.exe
-          dist/windows-msvc/assets/
-          dist/windows-msvc/dani-seres-do-papel-windows-msvc.zip
+        path: dist/windows-msvc/
         retention-days: 30
 
   build-linux:
@@ -78,25 +70,17 @@ jobs:
     - name: Build for Linux
       run: cargo build --release --target x86_64-unknown-linux-gnu
 
-    - name: Create Linux package with embedded assets
+    - name: Create Linux package
       run: |
         mkdir -p dist/linux
         cp target/x86_64-unknown-linux-gnu/release/dani_seres_do_papel dist/linux/
         cp -r assets dist/linux/
-        
-        # Criar arquivo TAR.GZ com tudo
-        cd dist/linux
-        tar -czf dani-seres-do-papel-linux.tar.gz dani_seres_do_papel assets/
-        cd ../..
 
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
       with:
         name: dani-seres-do-papel-linux
-        path: |
-          dist/linux/dani_seres_do_papel
-          dist/linux/assets/
-          dist/linux/dani-seres-do-papel-linux.tar.gz
+        path: dist/linux/
         retention-days: 30
 
   release:
@@ -116,10 +100,8 @@ jobs:
         files: |
           dist/windows-msvc/dani_seres_do_papel.exe
           dist/windows-msvc/assets/**
-          dist/windows-msvc/dani-seres-do-papel-windows-msvc.zip
           dist/linux/dani_seres_do_papel
           dist/linux/assets/**
-          dist/linux/dani-seres-do-papel-linux.tar.gz
         draft: false
         prerelease: false
       env:

@@ -14,3 +14,9 @@ once_cell = "1.19.0"
 [[bin]]
 name = "dani_seres_do_papel"
 path = "src/main.rs"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["wincon"] }
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"

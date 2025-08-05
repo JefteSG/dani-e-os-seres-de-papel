@@ -32,25 +32,17 @@ jobs:
     - name: Build for Windows MSVC
       run: cargo build --release --target x86_64-pc-windows-msvc
 
-    - name: Create Windows package with embedded assets
+    - name: Create Windows package
       run: |
         mkdir -p dist/windows-msvc-dev
         cp target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe dist/windows-msvc-dev/
         cp -r assets dist/windows-msvc-dev/
-        
-        # Criar arquivo ZIP com tudo
-        cd dist/windows-msvc-dev
-        7z a -tzip dani-seres-do-papel-windows-msvc-dev.zip dani_seres_do_papel.exe assets/
-        cd ../..
 
     - name: Upload Windows MSVC artifact
       uses: actions/upload-artifact@v4
       with:
         name: dani-seres-do-papel-windows-msvc-dev
-        path: |
-          dist/windows-msvc-dev/dani_seres_do_papel.exe
-          dist/windows-msvc-dev/assets/
-          dist/windows-msvc-dev/dani-seres-do-papel-windows-msvc-dev.zip
+        path: dist/windows-msvc-dev/
         retention-days: 7
 
   build-linux-dev:
@@ -78,23 +70,15 @@ jobs:
     - name: Build for Linux
       run: cargo build --release --target x86_64-unknown-linux-gnu
 
-    - name: Create Linux package with embedded assets
+    - name: Create Linux package
       run: |
         mkdir -p dist/linux-dev
         cp target/x86_64-unknown-linux-gnu/release/dani_seres_do_papel dist/linux-dev/
         cp -r assets dist/linux-dev/
-        
-        # Criar arquivo TAR.GZ com tudo
-        cd dist/linux-dev
-        tar -czf dani-seres-do-papel-linux-dev.tar.gz dani_seres_do_papel assets/
-        cd ../..
 
     - name: Upload Linux artifact
       uses: actions/upload-artifact@v4
       with:
         name: dani-seres-do-papel-linux-dev
-        path: |
-          dist/linux-dev/dani_seres_do_papel
-          dist/linux-dev/assets/
-          dist/linux-dev/dani-seres-do-papel-linux-dev.tar.gz
+        path: dist/linux-dev/
         retention-days: 7 
