@@ -4,7 +4,6 @@ pub fn draw_game_over(winner: &Option<String>) {
     let screen_width = screen_width();
     let screen_height = screen_height();
 
-    // Fundo escuro semi-transparente
     draw_rectangle(
         0.0,
         0.0,
@@ -13,13 +12,11 @@ pub fn draw_game_over(winner: &Option<String>) {
         Color::new(0.0, 0.0, 0.0, 0.8),
     );
 
-    // Painel central
     let panel_width = 400.0;
     let panel_height = 300.0;
     let panel_x = (screen_width - panel_width) / 2.0;
     let panel_y = (screen_height - panel_height) / 2.0;
 
-    // Fundo do painel
     draw_rectangle(
         panel_x,
         panel_y,
@@ -29,7 +26,6 @@ pub fn draw_game_over(winner: &Option<String>) {
     );
     draw_rectangle_lines(panel_x, panel_y, panel_width, panel_height, 3.0, GOLD);
 
-    // Título principal
     let title_text = "GAME OVER";
     let title_size = 36.0;
     let title_dims = measure_text(title_text, None, title_size as u16, 1.0);
@@ -41,7 +37,6 @@ pub fn draw_game_over(winner: &Option<String>) {
         RED,
     );
 
-    // Resultado da partida
     if let Some(ref winner) = winner {
         let (result_text, result_color) = if winner == "Jogador" {
             ("VITORIA!", GREEN)
@@ -61,7 +56,6 @@ pub fn draw_game_over(winner: &Option<String>) {
             result_color,
         );
 
-        // Detalhes do vencedor
         let winner_detail = if winner == "Jogador" {
             "Parabens! Voce derrotou o inimigo!"
         } else if winner == "Inimigo" {
@@ -81,13 +75,11 @@ pub fn draw_game_over(winner: &Option<String>) {
         );
     }
 
-    // Botão de voltar
     let button_width = 200.0;
     let button_height = 40.0;
     let button_x = panel_x + (panel_width - button_width) / 2.0;
     let button_y = panel_y + 200.0;
 
-    // Verificar hover no botão
     let (mouse_x, mouse_y) = mouse_position();
     let is_button_hovered = mouse_x >= button_x
         && mouse_x <= button_x + button_width
@@ -120,7 +112,6 @@ pub fn draw_game_over(winner: &Option<String>) {
         WHITE,
     );
 
-    // Instruções menores
     let instructions = "ESC ou clique no botao para continuar";
     let inst_size = 14.0;
     let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
