@@ -27,6 +27,8 @@ Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
 3. **📂 Extraia**: Extraia o arquivo ZIP
 4. **🎮 Execute**: Clique duas vezes em `dani_seres_do_papel.exe`
 
+⚠️ **Problema com Antivírus?** Se o Windows Defender bloquear o arquivo, veja [WINDOWS_ANTIVIRUS_FIX.md](WINDOWS_ANTIVIRUS_FIX.md) para soluções.
+
 #### **Opção 2: Compilação Local**
 ```bash
 # Instale o Rust
