@@ -10,7 +10,7 @@ use macroquad::prelude::*;
 pub struct BattleLogEntry {
     pub message: String,
     pub color: Color,
-    pub timestamp: f32, // Para controlar animações ou fade
+    pub timestamp: f32,
 }
 
 pub struct BattleState {
@@ -28,8 +28,8 @@ pub struct BattleState {
     pub damage_particles: Vec<DamageParticle>,
     pub battle_log: Vec<BattleLogEntry>,
     pub log_scroll_offset: f32,
-    pub slow_motion_timer: f32, // Timer para efeito slow motion
-    pub is_final_blow: bool,     // Se é o golpe final
+    pub slow_motion_timer: f32,
+    pub is_final_blow: bool,
 }
 
 impl BattleState {
@@ -42,12 +42,10 @@ impl BattleState {
         
         self.battle_log.push(entry);
         
-        // Limitar número de entradas (manter apenas as últimas 50)
         if self.battle_log.len() > 50 {
             self.battle_log.remove(0);
         }
         
-        // Auto-scroll para o final
         self.scroll_to_bottom();
     }
     
@@ -98,8 +96,7 @@ impl BattleState {
     }
     
     fn scroll_to_bottom(&mut self) {
-        // Calcular scroll para mostrar as mensagens mais recentes
-        let max_visible_lines = 8; // Número de linhas visíveis no log
+        let max_visible_lines = 8;
         if self.battle_log.len() > max_visible_lines {
             self.log_scroll_offset = (self.battle_log.len() - max_visible_lines) as f32;
         } else {
