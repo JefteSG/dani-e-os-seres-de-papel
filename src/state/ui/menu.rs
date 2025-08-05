@@ -59,7 +59,7 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     } else {
         player_name.to_string()
     };
-    let name_text_dims = measure_text(&display_name, None, name_text_size as u16, 1.0);
+    let _name_text_dims = measure_text(&display_name, None, name_text_size as u16, 1.0);
     draw_text(
         &display_name,
         input_x + 10.0,

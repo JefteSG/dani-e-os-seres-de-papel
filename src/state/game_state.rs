@@ -8,13 +8,12 @@ use crate::entity::Entity;
 use crate::gameturn::GameTurn;
 use crate::state::damage_particle::DamageParticle;
 use macroquad::prelude::*;
-use ::rand::random;
+
 use ::rand::thread_rng;
 use ::rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use once_cell::sync::Lazy;
 
 
 const PLAYER_TURN_COOLDOWN: f32 = 1.0;
@@ -98,80 +97,82 @@ pub struct GameState {
 
 }
 
-pub static ENEMIES: Lazy<Vec<EnemyInfo>> = Lazy::new(|| vec![
-    EnemyInfo {
-        id: 1,
-        name: "Esqueleto Bombado".to_string(),
-        base_health: 80,
-        base_attack: 8,
-        base_defense: 5,
-        health: 80,
-        max_health: 80,
-        attack: 8,
-        defense: 5,
-        level: 1,
-        times_defeated: 0,
-        is_unlocked: true, 
-        is_defeated: false,
-        emoji: Some("💀".to_string()),
-        image: Some("assets/enemies/skeleton.png".to_string()),
-    },
-    EnemyInfo {
-        id: 2,
-        name: "Zumbi Influencer".to_string(),
-        base_health: 140,
-        base_attack: 35,
-        base_defense: 16,
-        health: 140,
-        max_health: 140,
-        attack: 25,
-        defense: 16,
-        level: 1,
-        times_defeated: 0,
-        is_unlocked: false, 
-        is_defeated: false,
-        emoji: Some("🧟".to_string()),
-        image: Some("assets/enemies/zombie.png".to_string()),
-    },
-    EnemyInfo {
-        id: 3,
-        name: "Dragoberto".to_string(),
-        base_health: 220,
-        base_attack: 32,
-        base_defense: 30,
-        health: 220,
-        max_health: 220,
-        attack: 32,
-        defense: 30,
-        level: 3,
-        times_defeated: 0,
-        is_unlocked: false, 
-        is_defeated: false,
-        emoji: Some("🐲".to_string()),
-        image: Some("assets/enemies/dragon.png".to_string()),
-    },
-    EnemyInfo {
-        id: 4,
-        name: "Psicopapão".to_string(),
-        base_health: 520,
-        base_attack: 66,
-        base_defense: 12,
-        health: 520,
-        max_health: 520,
-        attack: 66,
-        defense: 12,
-        level: 1,
-        times_defeated: 0,
-        is_unlocked: false, 
-        is_defeated: false,
-        emoji: Some("👾".to_string()),
-        image: Some("assets/enemies/devourer.png".to_string()),
-    },
-]);
+fn get_default_enemies() -> Vec<EnemyInfo> {
+    vec![
+        EnemyInfo {
+            id: 1,
+            name: "Esqueleto Bombado".to_string(),
+            base_health: 80,
+            base_attack: 8,
+            base_defense: 5,
+            health: 80,
+            max_health: 80,
+            attack: 8,
+            defense: 5,
+            level: 1,
+            times_defeated: 0,
+            is_unlocked: true, 
+            is_defeated: false,
+            emoji: Some("💀".to_string()),
+            image: Some("assets/enemies/skeleton.png".to_string()),
+        },
+        EnemyInfo {
+            id: 2,
+            name: "Zumbi Influencer".to_string(),
+            base_health: 140,
+            base_attack: 35,
+            base_defense: 16,
+            health: 140,
+            max_health: 140,
+            attack: 25,
+            defense: 16,
+            level: 1,
+            times_defeated: 0,
+            is_unlocked: false, 
+            is_defeated: false,
+            emoji: Some("🧟".to_string()),
+            image: Some("assets/enemies/zombie.png".to_string()),
+        },
+        EnemyInfo {
+            id: 3,
+            name: "Dragoberto".to_string(),
+            base_health: 220,
+            base_attack: 32,
+            base_defense: 30,
+            health: 220,
+            max_health: 220,
+            attack: 32,
+            defense: 30,
+            level: 3,
+            times_defeated: 0,
+            is_unlocked: false, 
+            is_defeated: false,
+            emoji: Some("🐲".to_string()),
+            image: Some("assets/enemies/dragon.png".to_string()),
+        },
+        EnemyInfo {
+            id: 4,
+            name: "Psicopapão".to_string(),
+            base_health: 520,
+            base_attack: 66,
+            base_defense: 12,
+            health: 520,
+            max_health: 520,
+            attack: 66,
+            defense: 12,
+            level: 1,
+            times_defeated: 0,
+            is_unlocked: false, 
+            is_defeated: false,
+            emoji: Some("👾".to_string()),
+            image: Some("assets/enemies/devourer.png".to_string()),
+        },
+    ]
+}
 
 impl GameState {
     pub fn new() -> Self {
-        let enemies = ENEMIES.clone();
+        let enemies = get_default_enemies();
 
         let mut game_state = Self {
             app_state: AppState::Menu,
@@ -453,14 +454,14 @@ impl GameState {
                             battle.add_card_log("Jogador", &card.name);
                             
                             match card.card_type {
-                                CardType::Attack_basic(damage) => {
+                                CardType::AttackBasic(damage) => {
                                     battle.player.attack_up(damage);
                                     battle.current_message = format!(
                                         "Você usou {} e aumentou o ataque em {}!",
                                         card.name, damage
                                     );
                                 }
-                                CardType::Attack_strong(damage) => {
+                                CardType::AttackStrong(damage) => {
                                     battle.player.attack_up(damage);
                                     battle.current_message =
                                         format!("Você usou {} e aumentou o ataque em {}!",
@@ -589,12 +590,12 @@ impl GameState {
                             };
                             self.card_textures.play_enemy_sound(sound_key);
                             match card.card_type {
-                                CardType::Attack_basic(attack) => {
+                                CardType::AttackBasic(attack) => {
                                     battle.enemy.attack_up(attack);
                                     battle.current_message =
                                         format!("Inimigo aumentou ataque em {}!", attack);
                                 }
-                                CardType::Attack_strong(attack) => {
+                                CardType::AttackStrong(attack) => {
                                     battle.enemy.attack_up(attack);
                                     battle.current_message =
                                         format!("Inimigo aumentou ataque em {}!", attack);
@@ -1004,7 +1005,7 @@ impl GameState {
         };
 
         if let Ok(json) = serde_json::to_string_pretty(&save_data) {
-            if let Err(e) = fs::write(Self::SAVE_FILE, json) {
+            if let Err(_e) = fs::write(Self::SAVE_FILE, json) {
             } else {
             }
         }
@@ -1015,18 +1016,19 @@ impl GameState {
             if let Ok(json) = fs::read_to_string(Self::SAVE_FILE) {
                 if let Ok(save_data) = serde_json::from_str::<SaveData>(&json) {
                     self.enemies = save_data.enemies;
-                    for (index, enemy) in self.enemies.iter_mut().enumerate() {
-                        if enemy.image.as_ref().unwrap() != ENEMIES[index].image.as_ref().unwrap() {
-                            enemy.image = ENEMIES[index].image.clone();
-                            enemy.emoji = ENEMIES[index].emoji.clone();
-                            enemy.name = ENEMIES[index].name.clone();
-                            enemy.base_health = ENEMIES[index].base_health;
-                            enemy.base_attack = ENEMIES[index].base_attack;
-                            enemy.base_defense = ENEMIES[index].base_defense;
-                            enemy.health = ENEMIES[index].health;
-                            enemy.max_health = ENEMIES[index].max_health;
-                        }
-                    }
+                            let default_enemies = get_default_enemies();
+        for (index, enemy) in self.enemies.iter_mut().enumerate() {
+            if index < default_enemies.len() && enemy.image.as_ref().unwrap() != default_enemies[index].image.as_ref().unwrap() {
+                enemy.image = default_enemies[index].image.clone();
+                enemy.emoji = default_enemies[index].emoji.clone();
+                enemy.name = default_enemies[index].name.clone();
+                enemy.base_health = default_enemies[index].base_health;
+                enemy.base_attack = default_enemies[index].base_attack;
+                enemy.base_defense = default_enemies[index].base_defense;
+                enemy.health = default_enemies[index].health;
+                enemy.max_health = default_enemies[index].max_health;
+            }
+        }
                     self.player_name = save_data.player_name;
                     
                     if let Some(player_data) = save_data.persistent_player {
@@ -1054,7 +1056,7 @@ impl GameState {
     }
 
     pub fn reset_progress(&mut self) {
-        self.enemies = ENEMIES.clone();
+        self.enemies = get_default_enemies();
         
         self.persistent_player = None;
         

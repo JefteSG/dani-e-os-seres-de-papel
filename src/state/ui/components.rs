@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use crate::state::battle_state::{BattleState, BattleLogEntry};
+use crate::state::battle_state::BattleState;
 use crate::deck::{Hand, CardTextureManager};
 use crate::effects::StatusEffect;
 
@@ -343,7 +343,7 @@ pub fn draw_instructions(battle: &BattleState, font_size: f32) {
 
 pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
     let screen_width = screen_width();
-    let screen_height = screen_height();
+    let _screen_height = screen_height();
     
     let log_width = 350.0;
     let log_height = 200.0;
@@ -422,7 +422,7 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
     if battle.battle_log.len() > max_visible_lines {
         let scroll_text = "WASD Scroll | Home/End";
         let scroll_size = 10.0;
-        let scroll_dims = measure_text(scroll_text, None, scroll_size as u16, 1.0);
+        let _scroll_dims = measure_text(scroll_text, None, scroll_size as u16, 1.0);
         draw_text(
             scroll_text,
             log_x + 10.0,

@@ -2,7 +2,7 @@ use crate::player::Player;
 use crate::enemy::Enemy;
 use crate::deck::Deck;
 use crate::gameturn::GameTurn;
-use crate::effects::StatusEffect;
+
 use crate::state::damage_particle::DamageParticle;
 use macroquad::prelude::*;
 

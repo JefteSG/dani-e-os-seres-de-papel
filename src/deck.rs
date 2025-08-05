@@ -10,8 +10,8 @@ const ENEMY_ATTACK_BASIC_VOLUME: f32 = 0.2;
 /// Tipos de carta
 #[derive(Debug, Clone)]
 pub enum CardType {
-    Attack_basic(u32),
-    Attack_strong(u32),
+    AttackBasic(u32),
+    AttackStrong(u32),
     Defense(u32), 
     Poison(u32),
     Burn(u32),
@@ -49,8 +49,8 @@ pub struct Deck {
 impl Deck {
     pub fn new() -> Self {
         let mut cards = vec![
-            Card::new("Ataque", CardType::Attack_basic(12), "assets/cards/attack_basic.png"),
-            Card::new("Ataque Forte", CardType::Attack_strong(20), "assets/cards/attack_strong.png"),
+                    Card::new("Ataque", CardType::AttackBasic(12), "assets/cards/attack_basic.png"),
+        Card::new("Ataque Forte", CardType::AttackStrong(20), "assets/cards/attack_strong.png"),
             Card::new("Defesa", CardType::Defense(10), "assets/cards/defense.png"),
             Card::new("Veneno", CardType::Poison(5), "assets/cards/poison.png"),
             Card::new("Cura", CardType::Heal(0.25), "assets/cards/heal.png"),
@@ -109,13 +109,13 @@ impl Hand {
             (
                 chances.attack_basic,
                 "Ataque Básico",
-                CardType::Attack_basic(12),
+                CardType::AttackBasic(12),
                 "assets/cards/attack.png",
             ),
             (
                 chances.attack_strong,
                 "Ataque Forte",
-                CardType::Attack_strong(20),
+                CardType::AttackStrong(20),
                 "assets/cards/attack.png",
             ),
             (
@@ -315,8 +315,8 @@ impl CardTextureManager {
 
     pub fn get_texture_for_card(&self, card: &Card) -> Option<&Texture2D> {
         match card.card_type {
-            CardType::Attack_basic(_) => self.attack_basic_texture.as_ref(),
-            CardType::Attack_strong(_) => self.attack_strong_texture.as_ref(),
+                    CardType::AttackBasic(_) => self.attack_basic_texture.as_ref(),
+        CardType::AttackStrong(_) => self.attack_strong_texture.as_ref(),
             CardType::Defense(_) => self.defense_texture.as_ref(),
             CardType::Poison(_) => self.poison_texture.as_ref(),
             CardType::Heal(_) => self.heal_texture.as_ref(),
@@ -340,8 +340,8 @@ impl CardTextureManager {
         } else {
             // Fallback: desenha um retângulo colorido se a imagem não carregar
             let color = match card.card_type {
-                CardType::Attack_basic(_) => RED,
-                CardType::Attack_strong(_) => RED,
+                        CardType::AttackBasic(_) => RED,
+        CardType::AttackStrong(_) => RED,
                 CardType::Defense(_) => BLUE,
                 CardType::Poison(_) => GREEN,
                 CardType::Heal(_) => YELLOW,
