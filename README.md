@@ -2,6 +2,14 @@
 
 Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
 
+## 💝 A Origem do Projeto
+
+Este projeto nasceu de duas paixões: **aprender Rust** e **se divertir criando**! 
+
+Os monstros e criaturas que você encontrará no jogo foram desenhados pelo meu filho **Daniel** - daí vem o nome especial: **"Dani e os Seres de Papel"** 🎨✨
+
+É um projeto familiar que combina programação, criatividade e muito amor! 💕
+
 ## 📦 Tecnologias Utilizadas
 - **Linguagem**: Rust (edição 2024)
 - **Engine**: Macroquad (com suporte a áudio)
@@ -16,6 +24,25 @@ Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
 - **Inimigos variados** com comportamentos distintos
 - **Sistema de partículas** para feedback visual
 - **Persistência de progresso** via arquivo `save_game.json`
+
+## 📸 Capturas de Tela
+
+### 🏠 Tela Inicial
+![Tela Inicial](tela_inicial.png)
+
+### 👥 Seleção de Personagem
+![Seleção de Personagem](selecao_personagens.png)
+
+### ⚙️ Configurações
+![Configurações](config_sinal.png)
+
+### ⚔️ Tela de Luta
+![Tela de Luta](luta.png)
+
+### 🎥 Vídeo de Gameplay
+[🎮 **Assista ao Gameplay**](https://youtu.be/OClSfvBDb6o)
+
+*Veja o jogo em ação e descubra as estratégias para vencer!*
 
 ## 📥 Download e Instalação
 

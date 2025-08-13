@@ -37,7 +37,7 @@ pub fn draw_game_over(winner: &Option<String>) {
         RED,
     );
 
-    if let Some(ref winner) = winner {
+    if let Some(winner) = winner {
         let (result_text, result_color) = if winner == "Jogador" {
             ("VITORIA!", GREEN)
         } else if winner == "Inimigo" {

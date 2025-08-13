@@ -95,7 +95,7 @@ impl Hand {
         let mut rng = thread_rng();
         
         for _ in 0..quantity {
-            let roll: f32 = rng.gen();
+            let roll: f32 = rng.r#gen();
             let card = hand.select_card_by_chance(roll, &chances);
             hand.cards.push(card);
         }
