@@ -39,11 +39,11 @@ pub fn draw_game_over(winner: &Option<String>) {
 
     if let Some(winner) = winner {
         let (result_text, result_color) = if winner == "Jogador" {
-            ("VITORIA!", GREEN)
+            ("VICTORY!", GREEN)
         } else if winner == "Inimigo" {
-            ("DERROTA!", RED)
+            ("DEFEAT!", RED)
         } else {
-            ("EMPATE!", WHITE)
+            ("DRAW!", WHITE)
         };
 
         let result_size = 28.0;
@@ -57,11 +57,11 @@ pub fn draw_game_over(winner: &Option<String>) {
         );
 
         let winner_detail = if winner == "Jogador" {
-            "Parabens! Voce derrotou o inimigo!"
+            "Congratulations! You defeated the enemy!"
         } else if winner == "Inimigo" {
-            "O inimigo foi mais forte desta vez..."
+            "The enemy was stronger this time..."
         } else {
-            "Acabaram os turnos jogaveis!"
+            "Playable turns have ended!"
         };
 
         let detail_size = 18.0;
@@ -101,7 +101,7 @@ pub fn draw_game_over(winner: &Option<String>) {
     );
     draw_rectangle_lines(button_x, button_y, button_width, button_height, 2.0, WHITE);
 
-    let button_text = "ESCOLHER OUTRO INIMIGO";
+    let button_text = "CHOOSE ANOTHER ENEMY";
     let button_text_size = 16.0;
     let button_text_dims = measure_text(button_text, None, button_text_size as u16, 1.0);
     draw_text(
@@ -112,7 +112,7 @@ pub fn draw_game_over(winner: &Option<String>) {
         WHITE,
     );
 
-    let instructions = "ESC ou clique no botao para continuar";
+    let instructions = "ESC or click the button to continue";
     let inst_size = 14.0;
     let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
     draw_text(

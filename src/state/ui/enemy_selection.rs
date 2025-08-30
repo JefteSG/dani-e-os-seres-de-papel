@@ -7,7 +7,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
     let screen_width = screen_width();
     let screen_height = screen_height();
 
-    let title = "🏆 ESCOLHA SEU OPONENTE 🏆";
+    let title = "🏆 CHOOSE YOUR OPPONENT 🏆";
     let title_size = 36.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
     draw_text_with_emoji(
@@ -81,7 +81,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
     }
 
     if show_instructions {
-        let instructions = "Use A/D para navegar. Enter para selecionar. I para informações.";
+        let instructions = "Use A/D to navigate. Enter to select. I for information.";
         let inst_size = 18.0;
         let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
         draw_text(
@@ -92,7 +92,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
             LIGHTGRAY,
         );
 
-        let controls = "ESC: Menu Principal | Q: Sair do Jogo | Shift+R: Resetar Progresso";
+        let controls = "ESC: Main Menu | Q: Quit Game | Shift+R: Reset Progress";
         let controls_size = 14.0;
         let controls_dims = measure_text(controls, None, controls_size as u16, 1.0);
         draw_text(
@@ -103,7 +103,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
             DARKGRAY,
         );
     } else {
-        let help_text = "ℹ️ Pressione I para mostrar informações";
+        let help_text = "ℹ️ Press I to show information";
         let help_size = 16.0;
         let help_dims = measure_text(help_text, None, help_size as u16, 1.0);
         let help_x = (screen_width - help_dims.width) / 2.0;
@@ -161,7 +161,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
         let stats_y = name_y + 25.0;
         draw_text(&stats_text, stats_x, stats_y, stats_size, text_color);
 
-        let level_text = format!("Nível {}", enemy.level);
+        let level_text = format!("Level {}", enemy.level);
         let level_size = 16.0;
         let level_dims = measure_text(&level_text, None, level_size as u16, 1.0);
         let level_x = x + (card_width - level_dims.width) / 2.0;
@@ -169,11 +169,11 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
         draw_text(&level_text, level_x, level_y, level_size, ORANGE);
 
         let status_text = if !enemy.is_unlocked {
-            "🔒 BLOQUEADO"
+            "🔒 LOCKED"
         } else if enemy.is_defeated {
-            "✅ DERROTADO"
+            "✅ DEFEATED"
         } else {
-            "⚡ DISPONÍVEL"
+            "⚡ AVAILABLE"
         };
         let status_size = 16.0;
         let status_color = if !enemy.is_unlocked {
@@ -206,7 +206,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
     }
 
     if show_instructions {
-        let progress_title = "🎯 SISTEMA DE PROGRESSÃO 🎯";
+        let progress_title = "🎯 PROGRESSION SYSTEM 🎯";
         let progress_title_size = 20.0;
         let progress_title_dims = measure_text(progress_title, None, progress_title_size as u16, 1.0);
         draw_text_with_emoji(
@@ -218,7 +218,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
             emoji_font,
         );
 
-        let progress_text = "Derrote inimigos para ganhar experiência e subir de nível!";
+        let progress_text = "Defeat enemies to gain experience and level up!";
         let progress_size = 16.0;
         let progress_dims = measure_text(progress_text, None, progress_size as u16, 1.0);
         draw_text(
@@ -229,7 +229,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
             ORANGE,
         );
 
-        let benefits_text = "Cada nível aumenta sua vida máxima: +25 HP (ataque e defesa vêm das cartas)";
+        let benefits_text = "Each level increases your max health: +25 HP (attack and defense come from cards)";
         let benefits_size = 14.0;
         let benefits_dims = measure_text(benefits_text, None, benefits_size as u16, 1.0);
         draw_text(
@@ -240,7 +240,7 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
             LIME,
         );
 
-        let unlock_text = "Derrote os inimigos em ordem para desbloquear os próximos!";
+        let unlock_text = "Defeat enemies in order to unlock the next ones!";
         let unlock_size = 14.0;
         let unlock_dims = measure_text(unlock_text, None, unlock_size as u16, 1.0);
         draw_text(
@@ -256,9 +256,9 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
         let selected_enemy = &enemies[selected_index];
         if selected_enemy.is_unlocked {
             let detail_text = if selected_enemy.is_defeated {
-                format!("Você já derrotou {}! Pode enfrentar novamente para treinar.", selected_enemy.name)
+                format!("You have already defeated {}! You can face them again to train.", selected_enemy.name)
             } else {
-                format!("Pronto para enfrentar {}? Esta será uma batalha épica!", selected_enemy.name)
+                format!("Ready to face {}? This will be an epic battle!", selected_enemy.name)
             };
             let detail_size = 18.0;
             let detail_dims = measure_text(&detail_text, None, detail_size as u16, 1.0);
@@ -270,8 +270,8 @@ pub fn draw_enemy_selection(enemies: &Vec<EnemyInfo>, selected_index: usize, emo
                 LIME,
             );
         } else {
-            let locked_text = format!("Derrote {} primeiro para desbloquear este oponente!", 
-                if selected_index > 0 { &enemies[selected_index - 1].name } else { "o inimigo anterior" });
+            let locked_text = format!("Defeat {} first to unlock this opponent!",
+                if selected_index > 0 { &enemies[selected_index - 1].name } else { "the previous enemy" });
             let locked_size = 18.0;
             let locked_dims = measure_text(&locked_text, None, locked_size as u16, 1.0);
             draw_text(

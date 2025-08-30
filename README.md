@@ -1,206 +1,206 @@
 # Dani e os Seres de Papel 🃏✨
 
-Um jogo de cartas estratégico desenvolvido em Rust usando a engine Macroquad.
+A strategic card game developed in Rust using the Macroquad engine.
 
-## 💝 A Origem do Projeto
+## 💝 Project Origin
 
-Este projeto nasceu de duas paixões: **aprender Rust** e **se divertir criando**! 
+This project was born from two passions: **learning Rust** and **having fun creating**!
 
-Os monstros e criaturas que você encontrará no jogo foram desenhados pelo meu filho **Daniel** - daí vem o nome especial: **"Dani e os Seres de Papel"** 🎨✨
+The monsters and creatures you'll encounter in the game were drawn by my son **Daniel** - hence the special name: **"Dani e os Seres de Papel"** 🎨✨
 
-É um projeto familiar que combina programação, criatividade e muito amor! 💕
+It's a family project that combines programming, creativity, and lots of love! 💕
 
-## 📦 Tecnologias Utilizadas
-- **Linguagem**: Rust (edição 2024)
-- **Engine**: Macroquad (com suporte a áudio)
-- **Dependências**:
-  - `rand` para geração de números aleatórios
+## 📦 Technologies Used
+- **Language**: Rust (2024 edition)
+- **Engine**: Macroquad (with audio support)
+- **Dependencies**:
+  - `rand` for random number generation
 
-## 🎮 Sobre o Jogo
-"Dani e os Seres de Papel" é um jogo de turnos onde o jogador enfrenta inimigos usando um deck de cartas estratégicas. O jogo possui:
+## 🎮 About the Game
+"Dani e os Seres de Papel" is a turn-based game where the player faces enemies using a deck of strategic cards. The game features:
 
-- **Sistema de cooldown** entre turnos para criar ritmo estratégico
-- **Diferentes tipos de cartas**: ataque, defesa, veneno e cura
-- **Inimigos variados** com comportamentos distintos
-- **Sistema de partículas** para feedback visual
-- **Persistência de progresso** via arquivo `save_game.json`
+- **Cooldown system** between turns to create strategic rhythm
+- **Different card types**: attack, defense, poison, and healing
+- **Varied enemies** with distinct behaviors
+- **Particle system** for visual feedback
+- **Progress persistence** via `save_game.json` file
 
-## 📸 Capturas de Tela
+## 📸 Screenshots
 
-### 🏠 Tela Inicial
-![Tela Inicial](tela_inicial.png)
+### 🏠 Main Menu
+![Main Menu](tela_inicial.png)
 
-### 👥 Seleção de Personagem
-![Seleção de Personagem](selecao_personagens.png)
+### 👥 Character Selection
+![Character Selection](selecao_personagens.png)
 
-### ⚙️ Configurações
-![Configurações](config_sinal.png)
+### ⚙️ Settings
+![Settings](config_sinal.png)
 
-### ⚔️ Tela de Luta
-![Tela de Luta](luta.png)
+### ⚔️ Battle Screen
+![Battle Screen](luta.png)
 
-### 🎥 Vídeo de Gameplay
-[🎮 **Assista ao Gameplay**](https://youtu.be/OClSfvBDb6o)
+### 🎥 Gameplay Video
+[🎮 **Watch Gameplay**](https://youtu.be/OClSfvBDb6o)
 
-*Veja o jogo em ação e descubra as estratégias para vencer!*
+*See the game in action and discover strategies to win!*
 
-## 📥 Download e Instalação
+## 📥 Download and Installation
 
 ### 🪟 Windows
 
-#### **Opção 1: Download da Release (Recomendado)**
-1. **📥 Baixe**: Vá para [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
-2. **📦 Download**: Clique em `dani-seres-do-papel-windows.zip`
-3. **📂 Extraia**: Extraia o arquivo ZIP
-4. **🎮 Execute**: Clique duas vezes em `dani_seres_do_papel.exe`
+#### **Option 1: Release Download (Recommended)**
+1. **📥 Download**: Go to [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
+2. **📦 Download**: Click on `dani-seres-do-papel-windows.zip`
+3. **📂 Extract**: Extract the ZIP file
+4. **🎮 Run**: Double-click `dani_seres_do_papel.exe`
 
-⚠️ **Problema com Antivírus?** Se o Windows Defender bloquear o arquivo, veja [WINDOWS_ANTIVIRUS_FIX.md](WINDOWS_ANTIVIRUS_FIX.md) para soluções.
+⚠️ **Antivirus Issue?** If Windows Defender blocks the file, see [WINDOWS_ANTIVIRUS_FIX.md](WINDOWS_ANTIVIRUS_FIX.md) for solutions.
 
-#### **Opção 2: Compilação Local**
+#### **Option 2: Local Compilation**
 ```bash
-# Instale o Rust
+# Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
 cd dani-e-os-seres-de-papel
 
-# Compile para Windows
+# Compile for Windows
 cargo build --release --target x86_64-pc-windows-msvc
 
-# Execute
+# Run
 ./target/x86_64-pc-windows-msvc/release/dani_seres_do_papel.exe
 ```
 
 ### 🐧 Linux
 
-#### **Opção 1: Download da Release (Recomendado)**
-1. **📥 Baixe**: Vá para [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
-2. **📦 Download**: Clique em `dani-seres-do-papel-linux.tar.gz`
-3. **📂 Extraia**: 
+#### **Option 1: Release Download (Recommended)**
+1. **📥 Download**: Go to [Releases](https://github.com/JefteSG/dani-e-os-seres-de-papel/releases)
+2. **📦 Download**: Click on `dani-seres-do-papel-linux.tar.gz`
+3. **📂 Extract**:
    ```bash
    tar -xzf dani-seres-do-papel-linux.tar.gz
    ```
-4. **🎮 Execute**: 
+4. **🎮 Run**:
    ```bash
    cd dani-seres-do-papel
    chmod +x dani_seres_do_papel
    ./dani_seres_do_papel
    ```
 
-#### **Opção 2: Compilação Local**
+#### **Option 2: Local Compilation**
 ```bash
-# Instale dependências do sistema
+# Install system dependencies
 sudo apt-get update
 sudo apt-get install -y libasound2-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
 
-# Instale o Rust
+# Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
-cd dani-e-os-seres-de-papel
+cd dani-seres-do-papel
 
 # Compile
 cargo build --release
 
-# Execute
+# Run
 ./target/release/dani_seres_do_papel
 ```
 
 ### 🍎 macOS
 
-#### **Compilação Local**
+#### **Local Compilation**
 ```bash
-# Instale o Rust
+# Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Clone o repositório
+# Clone the repository
 git clone https://github.com/JefteSG/dani-e-os-seres-de-papel.git
 cd dani-e-os-seres-de-papel
 
 # Compile
 cargo build --release
 
-# Execute
+# Run
 ./target/release/dani_seres_do_papel
 ```
 
-## ⚙️ Sistema de Cooldown
-O jogo utiliza um sistema de espera entre turnos para melhorar a jogabilidade:
+## ⚙️ Cooldown System
+The game uses a waiting system between turns to improve gameplay:
 
-| Turno       | Tempo Padrão | Descrição                     |
-|-------------|--------------|-------------------------------|
-| **Jogador** | 1.0 segundos | Após usar uma carta           |
-| **Inimigo** | 1.0 segundo  | Após o inimigo realizar ação  |
+| Turn        | Default Time | Description                     |
+|-------------|--------------|---------------------------------|
+| **Player**  | 1.0 seconds | After using a card              |
+| **Enemy**   | 1.0 second  | After enemy performs action     |
 
-Os tempos podem ser ajustados no código fonte conforme necessidade.
+Times can be adjusted in the source code as needed.
 
 ## 🎵 Assets
-O projeto inclui:
-- **Efeitos sonoros** para cartas e ações
-- **Música de fundo** em formato .ogg
-- **Arte de cartas** e inimigos em PNG
-- **Fontes de emoji** para elementos visuais
+The project includes:
+- **Sound effects** for cards and actions
+- **Background music** in .ogg format
+- **Card and enemy art** in PNG
+- **Emoji fonts** for visual elements
 
-## 🚀 Como Executar (Desenvolvimento)
+## 🚀 How to Run (Development)
 
 ### Linux/macOS
-1. Certifique-se de ter o Rust instalado
-2. Clone este repositório
-3. Execute:
+1. Make sure Rust is installed
+2. Clone this repository
+3. Run:
    ```bash
    cargo run --release
    ```
 
 ### Windows
-Para compilar para Windows a partir do Linux/macOS:
+To compile for Windows from Linux/macOS:
 
-1. **Instale o Cross** (ferramenta de compilação cruzada):
+1. **Install Cross** (cross-compilation tool):
    ```bash
    cargo install cross
    ```
 
-2. **Certifique-se de que o Docker está rodando**
+2. **Make sure Docker is running**
 
-3. **Compile para Windows**:
+3. **Compile for Windows**:
    ```bash
-   # Usando o script automático (recomendado)
+   # Using automatic script (recommended)
    ./build-windows.sh
-   
-   # Ou manualmente
+
+   # Or manually
    cross build --target x86_64-pc-windows-gnu --release
    ```
 
-4. **O executável será criado em**: `target/x86_64-pc-windows-gnu/release/dani_seres_do_papel.exe`
+4. **The executable will be created in**: `target/x86_64-pc-windows-gnu/release/dani_seres_do_papel.exe`
 
-**Nota**: O target MSVC não é suportado pelo Cross e requer Visual Studio. Recomendamos usar o target GNU que é mais estável e compatível.
+**Note**: MSVC target is not supported by Cross and requires Visual Studio. We recommend using the GNU target which is more stable and compatible.
 
-📖 **Documentação completa**: Veja [BUILD_WINDOWS.md](BUILD_WINDOWS.md) para instruções detalhadas.
+📖 **Complete documentation**: See [BUILD_WINDOWS.md](BUILD_WINDOWS.md) for detailed instructions.
 
-## 📂 Estrutura do Projeto
+## 📂 Project Structure
 ```
 src/
-├── main.rs            # Ponto de entrada
-├── deck.rs            # Sistema de cartas
-├── effects.rs         # Efeitos de jogo
-├── enemy.rs           # Lógica dos inimigos
-├── entity.rs          # Entidades do jogo
-├── gameturn.rs        # Sistema de turnos
-├── player.rs          # Lógica do jogador
-└── state/             # Máquina de estados do jogo
+├── main.rs            # Entry point
+├── deck.rs            # Card system
+├── effects.rs         # Game effects
+├── enemy.rs           # Enemy logic
+├── entity.rs          # Game entities
+├── gameturn.rs        # Turn system
+├── player.rs          # Player logic
+└── state/             # Game state machine
 ```
 
-## ⚖️ Balanceamento
-O jogo foi projetado para permitir fácil ajuste de:
-- Tempos de cooldown
-- Dano das cartas
-- Comportamento dos inimigos
-- Velocidade do jogo
+## ⚖️ Balancing
+The game was designed to allow easy adjustment of:
+- Cooldown times
+- Card damage
+- Enemy behavior
+- Game speed
 
-## 📜 Licença
-Este projeto utiliza fontes sob licença Open Font License (OFL).
+## 📜 License
+This project uses fonts under the Open Font License (OFL).
 
 ---
 
-Desenvolvido com ❤️ usando Rust e Macroquad
+Developed with ❤️ using Rust and Macroquad

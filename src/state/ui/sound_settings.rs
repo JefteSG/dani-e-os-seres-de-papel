@@ -11,8 +11,8 @@ pub fn draw_sound_settings(
     let screen_width = screen_width();
     let screen_height = screen_height();
 
-    // Título
-    let title = "🔊 Configurações de Som 🔊";
+    // Title
+    let title = "🔊 Sound Settings 🔊";
     let title_size = 36.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
     draw_text_with_emoji(
@@ -24,8 +24,8 @@ pub fn draw_sound_settings(
         emoji_font,
     );
 
-    // Instruções
-    let instructions = "Clique nas barras para ajustar volume. Espaço/S para ativar/desativar. ESC para voltar.";
+    // Instructions
+    let instructions = "Click on bars to adjust volume. Space/S to toggle on/off. ESC to go back.";
     let inst_size = 18.0;
     let inst_dims = measure_text(instructions, None, inst_size as u16, 1.0);
     draw_text(
@@ -110,8 +110,8 @@ pub fn draw_sound_settings(
         WHITE,
     );
 
-    // Botão voltar
-    let back_text = "ESC: Voltar ao Menu";
+    // Back button
+    let back_text = "ESC: Back to Menu";
     let back_size = 20.0;
     let back_dims = measure_text(back_text, None, back_size as u16, 1.0);
     draw_text(

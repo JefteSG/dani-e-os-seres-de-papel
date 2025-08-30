@@ -103,8 +103,8 @@ fn draw_slow_motion_effect(battle: &BattleState) {
         Color::new(1.0f32, 0.0f32, 0.0f32, border_alpha),
     );
     
-    // Texto "GOLPE FINAL!" no centro
-    let text = "💀 GOLPE FINAL! 💀";
+    // Text "FINAL BLOW!" in the center
+    let text = "💀 FINAL BLOW! 💀";
     let text_size = 48.0;
     let text_dims = measure_text(text, None, text_size as u16, 1.0);
     

@@ -227,7 +227,7 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
         let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let poison_color = Color::new(0.6, 1.0, 0.6, pulse as f32);
         draw_text_with_emoji(
-            &format!("☠️ ENVENENADO ({})", poison_duration),
+            &format!("☠️ POISONED ({})", poison_duration),
             margin + 150.0,
             info_y + 35.0,
             font_size - 2.0,
@@ -239,7 +239,7 @@ pub fn draw_player_info(battle: &BattleState, font_size: f32, emoji_font: Option
         let pulse = (get_time() * 4.0).sin() * 0.4 + 0.6;
         let burn_color = Color::new(1.0, 0.3, 0.3, pulse as f32);
         draw_text_with_emoji(
-            &format!("🔥 QUEIMADO ({})", burn_duration),
+            &format!("🔥 BURNED ({})", burn_duration),
             margin + 150.0,
             info_y + 50.0,
             font_size - 2.0,
@@ -305,7 +305,7 @@ pub fn draw_instructions(battle: &BattleState, font_size: f32) {
     let instructions_y = screen_height() * 0.68;
     if battle.turn.player_turn() {
         if !battle.waiting_for_cooldown {
-            let instructions = "Escolha uma carta (1-5 ou clique)";
+            let instructions = "Choose a card (1-5 or click)";
             let screen_width = screen_width();
             let inst_dims = measure_text(instructions, None, font_size as u16, 1.0);
             draw_text(
@@ -316,7 +316,7 @@ pub fn draw_instructions(battle: &BattleState, font_size: f32) {
                 WHITE,
             );
         } else {
-            let wait_text = format!("Aguarde... ({:.1}s)", battle.turn_cooldown);
+            let wait_text = format!("Wait... ({:.1}s)", battle.turn_cooldown);
             let screen_width = screen_width();
             let wait_dims = measure_text(&wait_text, None, font_size as u16, 1.0);
             draw_text(
@@ -328,7 +328,7 @@ pub fn draw_instructions(battle: &BattleState, font_size: f32) {
             );
         }
     } else if battle.waiting_for_cooldown {
-        let wait_text = format!("Turno do inimigo... ({:.1}s)", battle.turn_cooldown);
+        let wait_text = format!("Enemy's turn... ({:.1}s)", battle.turn_cooldown);
         let screen_width = screen_width();
         let wait_dims = measure_text(&wait_text, None, font_size as u16, 1.0);
         draw_text(
@@ -354,7 +354,7 @@ pub fn draw_battle_log(battle: &BattleState, emoji_font: Option<&Font>) {
     draw_rectangle(log_x, log_y, log_width, log_height, Color::new(0.1, 0.1, 0.1, 0.9));
     draw_rectangle_lines(log_x, log_y, log_width, log_height, 2.0, Color::new(0.3, 0.3, 0.3, 1.0));
     
-    let title = "📜 Log de Batalha";
+    let title = "📜 Battle Log";
     let title_size = 16.0;
     let title_dims = measure_text(title, None, title_size as u16, 1.0);
     draw_text_with_emoji(

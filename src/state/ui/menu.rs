@@ -29,7 +29,7 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     //     WHITE,
     // );
 
-    let name_label = "Nome do Jogador:";
+    let name_label = "Player Name:";
     let name_label_size = 22.0;
     let name_label_dims = measure_text(name_label, None, name_label_size as u16, 1.0);
     draw_text(
@@ -69,9 +69,9 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     );
     
     let edit_instruction = if is_editing_name {
-        "Digite o nome e pressione Enter para confirmar"
+        "Type the name and press Enter to confirm"
     } else {
-        "Clique no campo ou pressione Tab para editar o nome"
+        "Click the field or press Tab to edit the name"
     };
     let edit_inst_size = 16.0;
     let edit_inst_dims = measure_text(edit_instruction, None, edit_inst_size as u16, 1.0);
@@ -84,9 +84,9 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     );
 
     let start_text = match selection {
-        MenuSelection::Start => ">> Iniciar <<",
-        MenuSelection::SoundSettings => "Iniciar",
-        MenuSelection::Quit => "Iniciar",
+        MenuSelection::Start => ">> Start <<",
+        MenuSelection::SoundSettings => "Start",
+        MenuSelection::Quit => "Start",
     };
     let start_color = match selection {
         MenuSelection::Start => LIME,
@@ -95,9 +95,9 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     };
 
     let sound_text = match selection {
-        MenuSelection::Start => "Configurações de Som",
-        MenuSelection::SoundSettings => ">> Configurações de Som <<",
-        MenuSelection::Quit => "Configurações de Som",
+        MenuSelection::Start => "Sound Settings",
+        MenuSelection::SoundSettings => ">> Sound Settings <<",
+        MenuSelection::Quit => "Sound Settings",
     };
     let sound_color = match selection {
         MenuSelection::Start => GRAY,
@@ -106,9 +106,9 @@ pub fn draw_menu(selection: &MenuSelection, player_name: &str, is_editing_name: 
     };
 
     let quit_text = match selection {
-        MenuSelection::Start => "Sair",
-        MenuSelection::SoundSettings => "Sair",
-        MenuSelection::Quit => ">> Sair <<",
+        MenuSelection::Start => "Quit",
+        MenuSelection::SoundSettings => "Quit",
+        MenuSelection::Quit => ">> Quit <<",
     };
     let quit_color = match selection {
         MenuSelection::Start => GRAY,
@@ -170,7 +170,7 @@ pub fn get_clicked_menu_option(mouse_x: f32, mouse_y: f32) -> Option<MenuSelecti
     let screen_height = screen_height();
 
     let start_y = screen_height * 0.6;
-    let start_text = ">> Iniciar <<";
+    let start_text = ">> Start <<";
     let option_size = 30.0;
     let start_dims = measure_text(start_text, None, option_size as u16, 1.0);
     let start_x = (screen_width - start_dims.width) / 2.0;
@@ -184,7 +184,7 @@ pub fn get_clicked_menu_option(mouse_x: f32, mouse_y: f32) -> Option<MenuSelecti
     }
 
     let sound_y = screen_height * 0.7;
-    let sound_text = ">> Configurações de Som <<";
+    let sound_text = ">> Sound Settings <<";
     let sound_dims = measure_text(sound_text, None, option_size as u16, 1.0);
     let sound_x = (screen_width - sound_dims.width) / 2.0;
 
@@ -197,7 +197,7 @@ pub fn get_clicked_menu_option(mouse_x: f32, mouse_y: f32) -> Option<MenuSelecti
     }
 
     let quit_y = screen_height * 0.8;
-    let quit_text = ">> Sair <<";
+    let quit_text = ">> Quit <<";
     let quit_dims = measure_text(quit_text, None, option_size as u16, 1.0);
     let quit_x = (screen_width - quit_dims.width) / 2.0;
 

@@ -182,7 +182,7 @@ impl GameState {
             enemies,
             selected_enemy_index: 0,
             persistent_player: None,
-            player_name: "Jogador".to_string(), 
+            player_name: "Player".to_string(),
             is_editing_name: false,
             emoji_font: None,
             window_too_small: false,
@@ -241,7 +241,7 @@ impl GameState {
                     }
                     if is_key_pressed(KeyCode::Escape) {
                         self.is_editing_name = false;
-                        self.player_name = "Jogador".to_string();
+                        self.player_name = "Player".to_string();
                     }
                     if is_key_pressed(KeyCode::Backspace) && !self.player_name.is_empty() {
                         self.player_name.pop();
@@ -378,10 +378,10 @@ impl GameState {
                     battle.log_scroll_offset = 0.0;
                 }
                 if battle.turn.turn_over() {
-                    battle.current_message = "⏰ TEMPO ESGOTADO! Acabaram os turnos!".to_string();
+                    battle.current_message = "⏰ TIME'S UP! Turns have ended!".to_string();
                     battle.add_battle_end_log("Empate");
                     self.winner = Some("Empate".to_string());
-                    self.on_battle_end("Acabaram os turnos jogaveis!");
+                    self.on_battle_end("Playable turns have ended!");
                     self.app_state = AppState::GameOver;
                     return;
                 }
@@ -402,13 +402,13 @@ impl GameState {
                             if battle.enemy.health <= 0 {
                                 battle.add_battle_end_log("Jogador");
                                 self.winner = Some("Jogador".to_string());
-                                self.on_battle_end("Jogador");
+                                self.on_battle_end("Player");
                                 self.app_state = AppState::GameOver;
                                 return;
                             } else {
                                 battle.add_battle_end_log("Inimigo");
                                 self.winner = Some("Inimigo".to_string());
-                                self.on_battle_end("Inimigo");
+                                self.on_battle_end("Enemy");
                                 self.app_state = AppState::GameOver;
                                 return;
                             }
@@ -451,7 +451,7 @@ impl GameState {
                             self.card_textures.play_card_use_sound();
                             battle.card_animation_timer = 0.3;
                             
-                            battle.add_card_log("Jogador", &card.name);
+                            battle.add_card_log("Player", &card.name);
                             
                             match card.card_type {
                                 CardType::AttackBasic(damage) => {
@@ -503,7 +503,7 @@ impl GameState {
                             let actual_damage = enemy_health_before - battle.enemy.health;
                             
                             let enemy_name = battle.enemy.name.clone();
-                            battle.add_damage_log("Jogador", &enemy_name, damage_dealt, actual_damage);
+                            battle.add_damage_log("Player", &enemy_name, damage_dealt, actual_damage);
                             
                             battle.enemy.apply_status_effects();
                             
@@ -558,15 +558,15 @@ impl GameState {
                             battle.is_final_blow = false;
                             
                             if battle.enemy.health <= 0 {
-                                battle.add_battle_end_log("Jogador");
-                                self.winner = Some("Jogador".to_string());
-                                self.on_battle_end("Jogador");
+                                battle.add_battle_end_log("Player");
+                                self.winner = Some("Player".to_string());
+                                self.on_battle_end("Player");
                                 self.app_state = AppState::GameOver;
                                 return;
                             } else {
-                                battle.add_battle_end_log("Inimigo");
-                                self.winner = Some("Inimigo".to_string());
-                                self.on_battle_end("Inimigo");
+                                battle.add_battle_end_log("Enemy");
+                                self.winner = Some("Enemy".to_string());
+                                self.on_battle_end("Enemy");
                                 self.app_state = AppState::GameOver;
                                 return;
                             }
@@ -593,31 +593,31 @@ impl GameState {
                                 CardType::AttackBasic(attack) => {
                                     battle.enemy.attack_up(attack);
                                     battle.current_message =
-                                        format!("Inimigo aumentou ataque em {}!", attack);
+                                        format!("Enemy increased attack by {}!", attack);
                                 }
                                 CardType::AttackStrong(attack) => {
                                     battle.enemy.attack_up(attack);
                                     battle.current_message =
-                                        format!("Inimigo aumentou ataque em {}!", attack);
+                                        format!("Enemy increased attack by {}!", attack);
                                 }
                                 CardType::Defense(defense) => {
                                     battle.enemy.defense_up(defense);
                                     battle.current_message =
-                                        format!("Inimigo aumentou defesa em {}!", defense);
+                                        format!("Enemy increased defense by {}!", defense);
                                 }
                                 CardType::Poison(_) => {
                                     battle.player.status_effect(StatusEffect::Poison, 4);
-                                    battle.current_message = "Inimigo aplicou veneno!".to_string();
+                                    battle.current_message = "Enemy applied poison!".to_string();
                                 }
                                 CardType::Heal(heal_percent) => {   
                                     let heal_amount = (battle.enemy.max_health as f32 * heal_percent) as u32;
                                     battle.enemy.heal(heal_amount);
-                                    battle.current_message = format!("Inimigo curou {}!", heal_amount);
+                                    battle.current_message = format!("Enemy healed {}!", heal_amount);
                                 }
                                 CardType::Burn(_) => {
                                     battle.player.status_effect(StatusEffect::Burn, 3);
                                     battle.current_message =
-                                        format!("Inimigo queimou! 🔥");
+                                        format!("Enemy burned! 🔥");
                                 }
                             }
                             let damage_dealt = battle.enemy.attack;
@@ -626,7 +626,7 @@ impl GameState {
                             let actual_damage = player_health_before - battle.player.health;
                             
                             let enemy_name = battle.enemy.name.clone();
-                            battle.add_damage_log(&enemy_name, "Jogador", damage_dealt, actual_damage);
+                            battle.add_damage_log(&enemy_name, "Player", damage_dealt, actual_damage);
                             
                             battle.player.apply_status_effects();
                             
@@ -648,7 +648,7 @@ impl GameState {
                             }
                         } else {
                             battle.current_message =
-                                "🃏 Deck do inimigo vazio! Turno pulado.".to_string();
+                                "🃏 Enemy deck empty! Turn skipped.".to_string();
                             battle.turn_cooldown = ENEMY_TURN_COOLDOWN;
                             battle.waiting_for_cooldown = true;
                         }
@@ -667,7 +667,7 @@ impl GameState {
                             battle.waiting_for_cooldown = false;
                             battle.turn.next_turn();
                             
-                            battle.add_turn_log("Jogador");
+                            battle.add_turn_log("Player");
                         }
                     }
                 }
@@ -895,7 +895,7 @@ impl GameState {
             enemy,
             deck,
             turn: GameTurn::new(50),
-            current_message: "A batalha começou!".to_string(),
+            current_message: "The battle has begun!".to_string(),
             music_started: false,
             turn_cooldown: 0.0,
             waiting_for_cooldown: false,
@@ -919,7 +919,7 @@ impl GameState {
     }
 
     pub fn on_battle_end(&mut self, winner: &str) {
-        if winner == "Jogador" {
+        if winner == "Player" {
             if let AppState::Battle(battle) = &mut self.app_state {
                 let player = &mut battle.player;
             

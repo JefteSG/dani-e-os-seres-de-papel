@@ -51,47 +51,47 @@ impl BattleState {
     
     pub fn add_damage_log(&mut self, attacker: &str, target: &str, damage: u32, actual_damage: u32) {
         let message = if actual_damage < damage {
-            format!("{} atacou {} por {} de dano ({} bloqueado pela defesa)", 
+            format!("{} attacked {} for {} damage ({} blocked by defense)",
                 attacker, target, actual_damage, damage - actual_damage)
         } else {
-            format!("{} causou {} de dano em {}", attacker, actual_damage, target)
+            format!("{} dealt {} damage to {}", attacker, actual_damage, target)
         };
         self.add_log(message, if attacker == "Jogador" { LIME } else { ORANGE });
     }
     
     pub fn add_heal_log(&mut self, target: &str, heal: u32) {
-        let message = format!("{} se curou em {} pontos de vida", target, heal);
+        let message = format!("{} healed for {} health points", target, heal);
         self.add_log(message, GREEN);
     }
     
     pub fn add_status_log(&mut self, target: &str, status: &str, duration: u32) {
-        let message = format!("{} foi afetado por {} por {} turnos", target, status, duration);
+        let message = format!("{} was affected by {} for {} turns", target, status, duration);
         self.add_log(message, PURPLE);
     }
     
     pub fn add_card_log(&mut self, player: &str, card_name: &str) {
-        let message = format!("{} usou carta: {}", player, card_name);
+        let message = format!("{} used card: {}", player, card_name);
         self.add_log(message, YELLOW);
     }
     
     pub fn add_turn_log(&mut self, player: &str) {
-        let message = format!("--- Turno de {} ---", player);
+        let message = format!("--- {}'s Turn ---", player);
         self.add_log(message, WHITE);
     }
     
     pub fn add_battle_start_log(&mut self, enemy_name: &str) {
-        self.add_log("BATALHA INICIADA!".to_string(), RED);
-        self.add_log(format!("Enfrentando: {}", enemy_name), ORANGE);
-        self.add_log("Boa sorte, guerreiro!".to_string(), LIME);
+        self.add_log("BATTLE STARTED!".to_string(), RED);
+        self.add_log(format!("Facing: {}", enemy_name), ORANGE);
+        self.add_log("Good luck, warrior!".to_string(), LIME);
     }
     
     pub fn add_battle_end_log(&mut self, winner: &str) {
         if winner == "Jogador" {
-            self.add_log("🎉 VITÓRIA! 🎉".to_string(), GOLD);
-            self.add_log("Você derrotou o inimigo!".to_string(), LIME);
+            self.add_log("🎉 VICTORY! 🎉".to_string(), GOLD);
+            self.add_log("You defeated the enemy!".to_string(), LIME);
         } else {
-            self.add_log("💀 DERROTA 💀".to_string(), RED);
-            self.add_log("Você foi derrotado...".to_string(), GRAY);
+            self.add_log("💀 DEFEAT 💀".to_string(), RED);
+            self.add_log("You were defeated...".to_string(), GRAY);
         }
     }
     

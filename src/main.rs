@@ -46,14 +46,14 @@ async fn main() {
     
     let font = match load_ttf_font("assets/Noto_Emoji/NotoEmoji-VariableFont_wght.ttf").await {
         Ok(font) => {
-            println!("✅ Fonte de emoji carregada com sucesso!");
+            println!("✅ Emoji font loaded successfully!");
             font
         }
         Err(_) => {
-            println!("⚠️ Erro ao carregar fonte de emoji, usando fonte padrão");
+            println!("⚠️ Error loading emoji font, using default font");
             load_ttf_font("assets/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf").await.unwrap_or_else(|_| {
-                println!("Erro ao carregar fonte de emoji alternativa");
-                panic!("Não foi possível carregar nenhuma fonte de emoji");
+                println!("Error loading alternative emoji font");
+                panic!("Could not load any emoji font");
             })
         }
     };

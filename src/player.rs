@@ -54,9 +54,9 @@ impl Player {
         self.max_health += health_bonus;
         self.health = self.max_health;
         
-        println!("🎉 {} subiu para o nível {}!", self.name, self.level);
+        println!("🎉 {} leveled up to level {}!", self.name, self.level);
         println!("   HP: {} | ATK: {} | DEF: {}", self.max_health, self.attack, self.defense);
-        println!("   💚 +{} HP máximo (ataque e defesa vêm das cartas)", health_bonus);
+        println!("   💚 +{} max HP (attack and defense come from cards)", health_bonus);
     }
 
     pub fn get_experience_progress(&self) -> f32 {
@@ -106,7 +106,7 @@ impl Entity for Player {
         for (effect, duration) in self.status_effects.iter_mut() {
             match effect {
                 StatusEffect::Poison => {
-                    println!("{} sofre 5 de dano por envenenamento!", self.name);
+                    println!("{} takes 5 damage from poison!", self.name);
                     self.health = self.health.saturating_sub(5);
                 }
                 StatusEffect::Burn => {
@@ -122,7 +122,7 @@ impl Entity for Player {
         }
 
         for effect in expired_effects {
-            println!("{:?} em {} terminou.", effect, self.name);
+            println!("{:?} on {} ended.", effect, self.name);
             self.status_effects.remove(&effect);
         }
     }
