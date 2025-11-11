@@ -7,6 +7,7 @@ use crate::effects::StatusEffect;
 use crate::entity::Entity;
 use crate::gameturn::GameTurn;
 use crate::state::damage_particle::DamageParticle;
+use crate::config::config::*;
 use macroquad::prelude::*;
 
 use ::rand::thread_rng;
@@ -14,11 +15,6 @@ use ::rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-
-
-const PLAYER_TURN_COOLDOWN: f32 = 1.0;
-const ENEMY_TURN_COOLDOWN: f32 = 1.0;
-const ENEMY_SHAKE_DURATION: f32 = 0.3;
 
 pub enum AppState {
     Menu,
@@ -188,12 +184,11 @@ impl GameState {
             window_too_small: false,
             show_player_info: true,
             show_instructions: false,
-            music_volume: 0.5,
-            sfx_volume: 0.5,
+            music_volume: DEFAULT_MUSIC_VOLUME,
+            sfx_volume: DEFAULT_SFX_VOLUME,
             music_enabled: true,
             sfx_enabled: true,
             music_started: false,
-
         };
         
         game_state.load_progress();
@@ -208,10 +203,8 @@ impl GameState {
     pub fn update(&mut self) {
         let current_width = screen_width();
         let current_height = screen_height();
-        let min_width = 800.0;
-        let min_height = 600.0;
         
-        self.window_too_small = current_width < min_width || current_height < min_height;
+        self.window_too_small = current_width < MIN_WINDOW_WIDTH || current_height < MIN_WINDOW_HEIGHT;
         
         if self.window_too_small {
             return;
@@ -257,7 +250,7 @@ impl GameState {
                         KeyCode::Key0, KeyCode::Key1, KeyCode::Key2, KeyCode::Key3, KeyCode::Key4,
                         KeyCode::Key5, KeyCode::Key6, KeyCode::Key7, KeyCode::Key8, KeyCode::Key9,
                     ] {
-                        if is_key_pressed(key_code) && self.player_name.len() < 20 {
+                        if is_key_pressed(key_code) && self.player_name.len() < MAX_PLAYER_NAME_LENGTH {
                             let ch = match key_code {
                                 KeyCode::A => 'A', KeyCode::B => 'B', KeyCode::C => 'C', KeyCode::D => 'D', KeyCode::E => 'E',
                                 KeyCode::F => 'F', KeyCode::G => 'G', KeyCode::H => 'H', KeyCode::I => 'I', KeyCode::J => 'J',
@@ -359,7 +352,7 @@ impl GameState {
             }
             AppState::Battle(battle) => {
                 
-                let max_visible_lines = 8;
+                let max_visible_lines = MAX_BATTLE_LOG_LINES;
                 if battle.battle_log.len() > max_visible_lines {
                     if is_key_pressed(KeyCode::Up) || is_key_pressed(KeyCode::W) {
                         battle.log_scroll_offset = (battle.log_scroll_offset - 1.0).max(0.0);
@@ -476,7 +469,7 @@ impl GameState {
                                     );
                                 }
                                 CardType::Poison(_) => {
-                                    battle.enemy.status_effect(StatusEffect::Poison, 4);
+                                    battle.enemy.status_effect(StatusEffect::Poison, STATUS_EFFECT_DURATION_POISON);
                                     battle.current_message =
                                         format!("Você usou {} e envenenou o inimigo!", card.name);
                                 }
@@ -489,7 +482,7 @@ impl GameState {
                                         
                                 }
                                 CardType::Burn(_) => {
-                                    battle.enemy.status_effect(StatusEffect::Burn, 3);
+                                    battle.enemy.status_effect(StatusEffect::Burn, STATUS_EFFECT_DURATION_BURN);
                                     battle.current_message =
                                         format!("Você usou {} e queimou! 🔥", card.name);
                                 }
@@ -606,7 +599,7 @@ impl GameState {
                                         format!("Enemy increased defense by {}!", defense);
                                 }
                                 CardType::Poison(_) => {
-                                    battle.player.status_effect(StatusEffect::Poison, 4);
+                                    battle.player.status_effect(StatusEffect::Poison, STATUS_EFFECT_DURATION_POISON);
                                     battle.current_message = "Enemy applied poison!".to_string();
                                 }
                                 CardType::Heal(heal_percent) => {   
@@ -615,7 +608,7 @@ impl GameState {
                                     battle.current_message = format!("Enemy healed {}!", heal_amount);
                                 }
                                 CardType::Burn(_) => {
-                                    battle.player.status_effect(StatusEffect::Burn, 3);
+                                    battle.player.status_effect(StatusEffect::Burn, STATUS_EFFECT_DURATION_BURN);
                                     battle.current_message =
                                         format!("Enemy burned! 🔥");
                                 }
@@ -845,16 +838,13 @@ impl GameState {
 
 
     fn get_clicked_card_index(&self, mouse_x: f32, mouse_y: f32, hand: &Hand) -> Option<usize> {
-        let card_width = 120.0;
-        let card_height = 180.0;
-        let card_spacing = 10.0;
         let start_y = screen_height() * 0.75;
-        let total_width = (hand.cards.len() as f32) * (card_width + card_spacing) - card_spacing;
+        let total_width = (hand.cards.len() as f32) * (CARD_WIDTH + CARD_SPACING) - CARD_SPACING;
         let start_x = (screen_width() - total_width) / 2.0;
         for (i, _card) in hand.cards.iter().enumerate() {
-            let base_x = start_x + (i as f32) * (card_width + card_spacing);
+            let base_x = start_x + (i as f32) * (CARD_WIDTH + CARD_SPACING);
             let base_y = start_y;
-            let is_hovered = mouse_x >= base_x && mouse_x <= base_x + card_width && mouse_y >= base_y && mouse_y <= base_y + card_height;
+            let is_hovered = mouse_x >= base_x && mouse_x <= base_x + CARD_WIDTH && mouse_y >= base_y && mouse_y <= base_y + CARD_HEIGHT;
             if is_hovered {
                 return Some(i);
             }
@@ -894,7 +884,7 @@ impl GameState {
             player,
             enemy,
             deck,
-            turn: GameTurn::new(50),
+            turn: GameTurn::new(MAX_TURNS),
             current_message: "The battle has begun!".to_string(),
             music_started: false,
             turn_cooldown: 0.0,
@@ -927,20 +917,21 @@ impl GameState {
                 enemy.is_defeated = true;
                 enemy.times_defeated += 1;
             
-                let exp_gained = enemy.level * 25 + 50;
+                let exp_gained = enemy.level * EXP_MULTIPLIER_PER_LEVEL + BASE_EXP_GAIN;
                 let leveled_up = player.gain_experience(exp_gained);
                 
                 if leveled_up {
                 } else {
                 }
             
-                let max_health_increase: u32 = (player.max_health as f32 * 0.1) as u32;
+                let max_health_increase: u32 = (player.max_health as f32 * HEALTH_INCREASE_PERCENT) as u32;
                 player.max_health = player.max_health.saturating_add(max_health_increase);
             
                 player.health = player.max_health;
                 let updated_player = player.clone();
             
-                drop(battle);
+                // Sai do escopo da batalha
+                let _ = battle;
                 self.scale_enemy(self.selected_enemy_index);
             
                 if self.selected_enemy_index + 1 < self.enemies.len() {

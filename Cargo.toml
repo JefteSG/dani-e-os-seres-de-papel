@@ -10,10 +10,10 @@ keywords = ["game", "cards", "strategy", "rust", "macroquad"]
 categories = ["games"]
 
 [dependencies]
-macroquad = { version = "0.4", features = ["audio"] }
-rand = "0.8"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+macroquad = { version = "0.4.14" }
+rand = "0.8.5"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.134"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["wincon"] }

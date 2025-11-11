@@ -1,19 +1,31 @@
 use crate::deck::{Card, Deck, Hand};
 use crate::effects::StatusEffect;
 use crate::entity::Entity;
+use crate::config::config::*;
 use std::collections::HashMap;
 
+/// Representa um jogador no jogo
 #[derive(Clone)]
 pub struct Player {
+    /// Nome do jogador
     pub name: String,
+    /// Cartas na mão do jogador
     pub hand: Hand,
+    /// Vida atual do jogador
     pub health: u32,
+    /// Vida máxima do jogador
     pub max_health: u32,
+    /// Valor de ataque atual
     pub attack: u32,
+    /// Valor de defesa atual
     pub defense: u32,
+    /// Nível do jogador
     pub level: u32,
+    /// Experiência atual
     pub experience: u32,
+    /// Experiência necessária para o próximo nível
     pub experience_to_next_level: u32,
+    /// Efeitos de status ativos no jogador
     pub status_effects: HashMap<StatusEffect, u32>,
 }
 
@@ -22,7 +34,7 @@ impl Player {
         deck.shuffle();
         Player {
             name: name.to_string(),
-            hand: Hand::new_from_deck(deck, 5),
+            hand: Hand::new_from_deck(deck, INITIAL_HAND_SIZE),
             health: 100,
             max_health: 100,
             attack: 10,

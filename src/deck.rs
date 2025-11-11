@@ -2,19 +2,22 @@ use macroquad::audio::{load_sound, play_sound, stop_sound, PlaySoundParams, Soun
 use macroquad::prelude::*;
 use ::rand::prelude::*;
 use ::rand::Rng;
+use crate::config::config::*;
 
-const BACKGROUND_MUSIC_VOLUME: f32 = 0.3;
-const CARD_USE_VOLUME: f32 = 0.2;
-const ENEMY_ATTACK_BASIC_VOLUME: f32 = 0.2;
-
-/// Tipos de carta
+/// Tipos de carta disponíveis no jogo
 #[derive(Debug, Clone)]
 pub enum CardType {
+    /// Ataque básico com dano especificado
     AttackBasic(u32),
+    /// Ataque forte com mais dano
     AttackStrong(u32),
+    /// Carta de defesa que aumenta a defesa do jogador
     Defense(u32), 
+    /// Carta de veneno que aplica efeito de status
     Poison(u32),
+    /// Carta de queimadura que aplica efeito de status
     Burn(u32),
+    /// Carta de cura que recupera uma porcentagem da vida máxima
     Heal(f32),
 }
 
@@ -49,14 +52,25 @@ pub struct Deck {
 impl Deck {
     pub fn new() -> Self {
         let mut cards = vec![
-                    Card::new("Ataque", CardType::AttackBasic(12), "assets/cards/attack_basic.png"),
-        Card::new("Ataque Forte", CardType::AttackStrong(20), "assets/cards/attack_strong.png"),
+            // Cards básicos (mais frequentes)
+            Card::new("Ataque", CardType::AttackBasic(12), "assets/cards/attack_basic.png"),
+            Card::new("Ataque", CardType::AttackBasic(12), "assets/cards/attack_basic.png"),
+            Card::new("Ataque", CardType::AttackBasic(12), "assets/cards/attack_basic.png"),
             Card::new("Defesa", CardType::Defense(10), "assets/cards/defense.png"),
+            Card::new("Defesa", CardType::Defense(10), "assets/cards/defense.png"),
+            Card::new("Defesa", CardType::Defense(10), "assets/cards/defense.png"),
+            
+            // Cards especiais (menos frequentes)
+            Card::new("Ataque Forte", CardType::AttackStrong(20), "assets/cards/attack_strong.png"),
+            Card::new("Ataque Forte", CardType::AttackStrong(20), "assets/cards/attack_strong.png"),
+            Card::new("Veneno", CardType::Poison(5), "assets/cards/poison.png"),
             Card::new("Veneno", CardType::Poison(5), "assets/cards/poison.png"),
             Card::new("Cura", CardType::Heal(0.25), "assets/cards/heal.png"),
             Card::new("Queimadura", CardType::Burn(10), "assets/cards/burn.png"),
         ];
-        cards = cards.into_iter().cycle().take(40).collect();
+        
+        // Preenche o deck até o tamanho desejado ciclando pelas cartas
+        cards = cards.into_iter().cycle().take(DECK_SIZE).collect();
         Self { cards }
     }
 
@@ -481,7 +495,7 @@ impl CardTextureManager {
                 sound,
                 PlaySoundParams {
                     looped: false,
-                    volume: ENEMY_ATTACK_BASIC_VOLUME,
+                    volume: ENEMY_ATTACK_VOLUME,
                 },
             );
         }
@@ -494,7 +508,7 @@ impl CardTextureManager {
                 sound,
                 PlaySoundParams {
                     looped: false,
-                    volume: ENEMY_ATTACK_BASIC_VOLUME,
+                    volume: ENEMY_ATTACK_VOLUME,
                 },
             );
         } else {
