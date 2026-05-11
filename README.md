@@ -1,5 +1,7 @@
 # Dani e os Seres de Papel 🃏✨
 
+> 🇧🇷 [Leia em Português](README.pt-br.md)
+
 A strategic card game developed in Rust using the Macroquad engine.
 
 ## 💝 Project Origin
@@ -177,6 +179,30 @@ To compile for Windows from Linux/macOS:
 **Note**: MSVC target is not supported by Cross and requires Visual Studio. We recommend using the GNU target which is more stable and compatible.
 
 📖 **Complete documentation**: See [BUILD_WINDOWS.md](BUILD_WINDOWS.md) for detailed instructions.
+
+## 🤖 CI/CD and Automated Releases
+
+The project uses GitHub Actions for continuous integration and automated releases:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|----------|
+| **Rust Build and Test** | Push / PR to `main` | Builds and runs tests on Linux and Windows |
+| **Development Build** | Push to `main` or manual dispatch | Builds dev packages for Windows and Linux (artifacts kept 7 days) |
+| **Build and Release** | Tag `v*` or manual dispatch | Builds release packages and publishes to GitHub Releases |
+
+### 🚀 Publishing a New Release
+
+To publish a new version, create a tag following the `v1.0.0` format:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The **Build Windows MSVC and Linux** workflow will automatically:
+- Build the Windows executable and package it as `dani-seres-do-papel-windows.zip`
+- Build the Linux executable and package it as `dani-seres-do-papel-linux.tar.gz`
+- Publish a GitHub Release with both files attached
 
 ## 📂 Project Structure
 ```
